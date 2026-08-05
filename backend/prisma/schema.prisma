@@ -1,0 +1,85 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Dosen {
+  id            String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nama          String       @db.VarChar(150)
+  email         String       @unique @db.VarChar(255)
+  passwordHash  String       @map("password_hash") @db.Text
+  createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime     @updatedAt @map("updated_at") @db.Timestamptz
+  matakuliah    Matakuliah[]
+
+  @@map("dosen")
+}
+
+model Matakuliah {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  dosenId   String   @map("dosen_id") @db.Uuid
+  nama      String   @db.VarChar(200)
+  kode      String   @unique @db.VarChar(20)
+  deskripsi String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  dosen     Dosen    @relation(fields: [dosenId], references: [id], onDelete: Cascade)
+  materi    Materi[]
+  jadwal    Jadwal[]
+
+  @@index([dosenId])
+  @@map("matakuliah")
+}
+
+model Materi {
+  id            String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  matakuliahId  String       @map("matakuliah_id") @db.Uuid
+  judul         String       @db.VarChar(300)
+  konten        String?      @db.Text
+  pdfUrl        String?      @map("pdf_url") @db.VarChar(500)
+  urutan        Int
+  createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime     @updatedAt @map("updated_at") @db.Timestamptz
+  matakuliah    Matakuliah   @relation(fields: [matakuliahId], references: [id], onDelete: Cascade)
+  fotoMateri    FotoMateri[]
+
+  @@index([matakuliahId])
+  @@index([matakuliahId, urutan])
+  @@map("materi")
+}
+
+model FotoMateri {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  materiId  String   @map("materi_id") @db.Uuid
+  urlFoto   String   @map("url_foto") @db.VarChar(500)
+  urutan    Int      @default(1)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  materi    Materi   @relation(fields: [materiId], references: [id], onDelete: Cascade)
+
+  @@index([materiId])
+  @@map("foto_materi")
+}
+
+model Jadwal {
+  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  matakuliahId String     @map("matakuliah_id") @db.Uuid
+  hari         String     @db.VarChar(15)
+  jamMulai     String     @map("jam_mulai") @db.VarChar(5)
+  jamSelesai   String     @map("jam_selesai") @db.VarChar(5)
+  ruangan      String     @db.VarChar(50)
+  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime   @updatedAt @map("updated_at") @db.Timestamptz
+  matakuliah   Matakuliah @relation(fields: [matakuliahId], references: [id], onDelete: Cascade)
+
+  @@index([matakuliahId])
+  @@map("jadwal")
+}
