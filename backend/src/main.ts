@@ -17,6 +17,15 @@ async function bootstrap() {
   app.use(helmet());
   app.use(compression());
 
+  // Fix 1: CORS — baca origin dari environment variable
+  const corsOrigin = process.env.CORS_ORIGIN ?? 'http://localhost:5173';
+  const allowedOrigins = corsOrigin.split(',').map((o) => o.trim());
+  app.enableCors({
+    origin: allowedOrigins,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    credentials: true,
+  });
+
   // Global Validation Pipe
   app.useGlobalPipes(
     new ValidationPipe({
@@ -26,19 +35,27 @@ async function bootstrap() {
     }),
   );
 
-  // CORS
-  app.enableCors();
-
   // Swagger setup
   const config = new DocumentBuilder()
     .setTitle('RetDiary API')
-    .setDescription('API Documentation for RetDiary')
+    .setDescription(
+      'API Documentation for RetDiary — Platform Materi Perkuliahan Perkebunan Polinela',
+    )
     .setVersion('1.0')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  await app.listen(process.env.PORT ?? 3000);
+  const port = process.env.PORT ?? 3000;
+  await app.listen(port);
+
+  const logger = app.get(Logger);
+  logger.log(`🚀 Server berjalan di: http://localhost:${port}`, 'Bootstrap');
+  logger.log(
+    `📚 Swagger docs: http://localhost:${port}/api/docs`,
+    'Bootstrap',
+  );
+  logger.log(`🌐 CORS diizinkan dari: ${allowedOrigins.join(', ')}`, 'Bootstrap');
 }
 bootstrap();

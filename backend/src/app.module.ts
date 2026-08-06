@@ -5,6 +5,7 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import * as Joi from 'joi';
 
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
@@ -18,8 +19,20 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
 
 @Module({
   imports: [
-    // Config global - tersedia di seluruh aplikasi
-    ConfigModule.forRoot({ isGlobal: true }),
+    // Fix 2: Validasi env variable saat startup — error jelas jika ada yang hilang
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validationSchema: Joi.object({
+        DATABASE_URL: Joi.string().required(),
+        JWT_SECRET: Joi.string().min(8).required(),
+        JWT_EXPIRES_IN: Joi.string().default('7d'),
+        PORT: Joi.number().default(3000),
+        NODE_ENV: Joi.string()
+          .valid('development', 'production', 'test')
+          .default('development'),
+        CORS_ORIGIN: Joi.string().default('http://localhost:5173'),
+      }),
+    }),
 
     // Logging dengan Pino
     LoggerModule.forRoot({

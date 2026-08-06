@@ -62,8 +62,9 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 /generated/prisma
 
-# Uploads (file PDF dan foto — tidak perlu di-commit)
-/uploads
+# Uploads (file PDF dan foto — tidak perlu di-commit, tapi folder harus ada)
+/uploads/*
+!/uploads/.gitkeep
 
 # Prisma skills lock
 skills-lock.json
