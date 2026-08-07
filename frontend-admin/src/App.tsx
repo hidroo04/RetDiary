@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores/auth.store'
+import Login from '@/pages/Login/Login'
 
 // Dummy component untuk placeholder sementara (menunggu desain)
 const Placeholder = ({ title }: { title: string }) => (
@@ -20,7 +21,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 function App() {
   return (
     <Routes>
-      <Route path="/login" element={<Placeholder title="Halaman Login Admin" />} />
+      <Route path="/login" element={<Login />} />
       
       {/* Protected Routes (Butuh Login) */}
       <Route 
