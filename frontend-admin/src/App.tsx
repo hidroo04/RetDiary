@@ -1,6 +1,8 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores/auth.store'
 import Login from '@/pages/Login/Login'
+import { AdminLayout } from '@/layouts/AdminLayout/AdminLayout'
+import Dashboard from '@/pages/Dashboard/Dashboard'
 
 // Dummy component untuk placeholder sementara (menunggu desain)
 const Placeholder = ({ title }: { title: string }) => (
@@ -28,11 +30,11 @@ function App() {
         path="/" 
         element={
           <ProtectedRoute>
-            <Placeholder title="Dashboard Admin (Layout Utama)" />
+            <AdminLayout />
           </ProtectedRoute>
         } 
       >
-        <Route index element={<Placeholder title="Dashboard" />} />
+        <Route index element={<Dashboard />} />
         <Route path="matakuliah" element={<Placeholder title="Kelola Matakuliah" />} />
         <Route path="materi" element={<Placeholder title="Kelola Materi" />} />
         <Route path="jadwal" element={<Placeholder title="Kelola Jadwal" />} />

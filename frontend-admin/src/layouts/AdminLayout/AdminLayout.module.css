@@ -1,0 +1,264 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8f6fc;
+  padding: 1.5rem;
+  gap: 2rem;
+}
+
+.sidebar {
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2rem 1.5rem;
+  transition: width 0.3s ease, padding 0.3s ease;
+  position: relative;
+  z-index: 10;
+}
+
+.sidebar.collapsed {
+  width: 80px;
+  padding: 2rem 0.75rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: white;
+  border: 1px solid #e0dcf2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #6a4c9c;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  transition: opacity 0.2s ease, width 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.collapsed .userInfo {
+  opacity: 0;
+  width: 0;
+  pointer-events: none;
+}
+
+.appName {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #1a1a2e;
+  line-height: 1.2;
+}
+
+.userRole {
+  font-size: 0.65rem;
+  color: #8c8c8c;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.collapseBtn {
+  position: absolute;
+  right: -12px;
+  top: 36px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #6a4c9c;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(106, 76, 156, 0.2);
+}
+
+.collapsed .collapseBtn {
+  transform: rotate(180deg);
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 12px;
+  color: #4a4a68;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.navLabel {
+  transition: opacity 0.2s ease, width 0.2s ease;
+  opacity: 1;
+}
+
+.collapsed .navLabel {
+  opacity: 0;
+  width: 0;
+}
+
+.collapsed .navItem {
+  justify-content: center;
+  padding: 1rem 0;
+}
+
+.navItem:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.navItem.active {
+  background: white;
+  color: #6a4c9c;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.logoutBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background: transparent;
+  border: 1px solid rgba(106, 76, 156, 0.2);
+  color: #4a4a68;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.collapsed .logoutBtn {
+  padding: 1rem 0;
+}
+
+.logoutBtn:hover {
+  background: rgba(106, 76, 156, 0.05);
+  color: #6a4c9c;
+}
+
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 1rem 2rem 2rem 1rem;
+}
+
+/* Tooltip Liquid Glass */
+.collapsed .navItem, .collapsed .logoutBtn {
+  position: relative;
+}
+
+.collapsed .navItem::after, .collapsed .logoutBtn::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%) translateX(10px);
+  margin-left: 10px;
+  background: rgba(230, 225, 245, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  color: #6a4c9c;
+  padding: 0.6rem 1.2rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 32px rgba(106, 76, 156, 0.15);
+  z-index: 100;
+}
+
+.collapsed .navItem:hover::after, .collapsed .logoutBtn:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+  .layout {
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .sidebar {
+    width: 100% !important;
+    padding: 1rem;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    border-radius: 20px;
+  }
+  
+  .sidebar > div:first-child {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex: 1;
+  }
+  
+  .header {
+    margin-bottom: 0;
+  }
+  
+  .userInfo, .collapseBtn, .navLabel {
+    display: none !important;
+  }
+
+  .nav {
+    flex-direction: row;
+    margin-left: auto;
+  }
+
+  .navItem {
+    padding: 0.75rem;
+  }
+
+  .logoutBtn {
+    width: auto;
+    padding: 0.75rem;
+    margin-left: 0.5rem;
+  }
+  
+  .mainContent {
+    padding: 0;
+  }
+}

@@ -17,10 +17,11 @@ export const authApi = {
       jumlahMatakuliah: number;
       jumlahMateri: number;
       materiTerbaru: {
+        id: string;
         judul: string;
         createdAt: string;
         matakuliah: { nama: string };
-      } | null;
+      }[];
     }>>('/admin/auth/dashboard');
     return res.data.data;
   },

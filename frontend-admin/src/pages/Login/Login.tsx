@@ -5,6 +5,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { authApi } from '@/api/auth.api';
 import { useAuthStore } from '@/stores/auth.store';
+import { Mail, Lock, BookOpen, Calendar, PieChart } from 'lucide-react';
+import illustrationImg from '../../assets/kelinci.png';
 import styles from './Login.module.css';
 
 const loginSchema = z.object({
@@ -42,19 +44,34 @@ export default function Login() {
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        
+
         {/* Kolom Kiri */}
         <div className={styles.leftSide}>
-          <div className={styles.logoLeft}>R</div>
-          <div className={styles.leftSubtitle}>RETDIARY - POLINELA</div>
-          <h1 className={styles.leftTitle}>Ruang kerja<br/>pengajar, lebih<br/>teratur.</h1>
+          <div className={styles.leftHeader}>
+            <div className={styles.logoLeft}>R</div>
+            <span className={styles.leftSubtitle}>RETDIARY • POLINELA</span>
+          </div>
+          <h1 className={styles.leftTitle}>
+            Ruang kerja<br />pengajar,<br />
+            <span className={styles.highlightText}>lebih teratur.</span>
+          </h1>
           <p className={styles.leftDesc}>
             Kelola materi, jadwal, dan aktivitas pembelajaran dalam satu tempat.
           </p>
           <div className={styles.tags}>
-            <span className={styles.tag}>Materi</span>
-            <span className={styles.tag}>Jadwal</span>
-            <span className={styles.tag}>Laporan</span>
+            <span className={styles.tag}>
+              <BookOpen size={14} className={styles.tagIconMateri} /> Materi
+            </span>
+            <span className={styles.tag}>
+              <Calendar size={14} className={styles.tagIconJadwal} /> Jadwal
+            </span>
+            <span className={styles.tag}>
+              <PieChart size={14} className={styles.tagIconLaporan} /> Laporan
+            </span>
+          </div>
+
+          <div className={styles.illustrationWrapper}>
+            <img src={illustrationImg} alt="Illustration" className={styles.illustration} />
           </div>
         </div>
 
@@ -62,7 +79,7 @@ export default function Login() {
         <div className={styles.rightSide}>
           <div className={styles.headerRight}>
             <div className={styles.logoRight}>R</div>
-            <span>RetDiary Admin</span>
+            <span>RetDiary Admin </span>
           </div>
 
           <div className={styles.welcomeText}>SELAMAT DATANG KEMBALI</div>
@@ -74,25 +91,32 @@ export default function Login() {
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className={styles.formGroup}>
               <label className={styles.formLabel}>Email institusi</label>
-              <input
-                type="email"
-                placeholder="nama@polinela.ac.id"
-                className={styles.inputField}
-                {...register('email')}
-              />
+              <div className={styles.inputWrapper}>
+                <Mail size={18} className={styles.inputIcon} />
+                <input
+                  type="email"
+                  placeholder="nama@polinela.ac.id"
+                  className={styles.inputField}
+                  {...register('email')}
+                />
+              </div>
               {errors.email && <span className={styles.errorMessage}>{errors.email.message}</span>}
             </div>
 
             <div className={styles.formGroup}>
               <div className={styles.labelRow}>
                 <label className={styles.formLabel}>Kata sandi</label>
+                <a href="#" className={styles.forgotPassword}>Lupa kata sandi?</a>
               </div>
-              <input
-                type="password"
-                placeholder="Masukkan kata sandi"
-                className={styles.inputField}
-                {...register('password')}
-              />
+              <div className={styles.inputWrapper}>
+                <Lock size={18} className={styles.inputIcon} />
+                <input
+                  type="password"
+                  placeholder="Masukkan kata sandi"
+                  className={styles.inputField}
+                  {...register('password')}
+                />
+              </div>
               {errors.password && <span className={styles.errorMessage}>{errors.password.message}</span>}
             </div>
 
@@ -107,7 +131,7 @@ export default function Login() {
           </form>
 
           <div className={styles.footer}>
-            Butuh bantuan? Hubungi <strong>administrator program studi</strong>
+            Butuh bantuan? Hubungi <a href="#">administrator program studi</a>
           </div>
         </div>
 
