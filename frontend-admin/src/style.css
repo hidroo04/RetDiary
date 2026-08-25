@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
 :root {
   --text: #6b6375;
   --text-h: #08060d;
@@ -10,16 +12,37 @@
   --social-bg: rgba(244, 243, 236, 0.5);
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  /* RetDiary Frosted Lilac & White Theme */
+  --color-bg-primary: #F8F7FD;
+  --color-bg-sidebar: rgba(255, 255, 255, 0.72);
+  --color-bg-card: rgba(255, 255, 255, 0.82);
+  --color-primary-lilac: #8B5CF6;
+  --color-primary-lilac-hover: #7C3AED;
+  --color-lilac-light: #F3E8FF;
+  --color-lilac-tint: rgba(139, 92, 246, 0.12);
+  --color-lilac-gradient: linear-gradient(135deg, #A78BFA 0%, #8B5CF6 100%);
+  --color-primary-pink: #8B5CF6;
+  --color-pink-hover: #F3E8FF;
+  --color-lavender: #8B5CF6;
+  --color-lavender-light: #EDE9FE;
+  --color-text-primary: #2E1E4D;
+  --color-text-secondary: #6D6882;
+  --color-border: rgba(226, 220, 245, 0.8);
+  --color-border-glass: rgba(255, 255, 255, 0.85);
+  --color-glass-shadow: 0 10px 30px -5px rgba(139, 92, 246, 0.08), 0 4px 12px rgba(0, 0, 0, 0.02);
+  --color-glass-highlight: inset 0 1px 1px rgba(255, 255, 255, 0.9);
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --sans: 'Poppins', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: 'Poppins', system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
+  color-scheme: light;
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -30,28 +53,22 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background-color: #F8F7FD;
+  background-image: 
+    radial-gradient(circle at 10% 10%, rgba(196, 181, 253, 0.35) 0%, transparent 40%),
+    radial-gradient(circle at 90% 15%, rgba(221, 214, 254, 0.3) 0%, transparent 45%),
+    radial-gradient(circle at 50% 90%, rgba(237, 233, 254, 0.45) 0%, transparent 50%);
+  background-attachment: fixed;
+  font-family: var(--sans);
+  color: var(--color-text-primary);
 }
 
 h1,

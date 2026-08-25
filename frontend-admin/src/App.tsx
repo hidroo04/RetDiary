@@ -3,6 +3,7 @@ import { useAuthStore } from '@/stores/auth.store'
 import Login from '@/pages/Login/Login'
 import { AdminLayout } from '@/layouts/AdminLayout/AdminLayout'
 import Dashboard from '@/pages/Dashboard/Dashboard'
+import Matakuliah from '@/pages/Matakuliah/Matakuliah'
 
 // Dummy component untuk placeholder sementara (menunggu desain)
 const Placeholder = ({ title }: { title: string }) => (
@@ -12,6 +13,7 @@ const Placeholder = ({ title }: { title: string }) => (
   </div>
 )
 
+// ProtectedRoute: Hanya bisa diakses jika sudah login (jika belum, redirect ke /login)
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const token = useAuthStore((state) => state.token)
   if (!token) {
@@ -20,10 +22,26 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>
 }
 
+// GuestRoute: Hanya bisa diakses jika belum login (jika sudah login, langsung ke /)
+const GuestRoute = ({ children }: { children: React.ReactNode }) => {
+  const token = useAuthStore((state) => state.token)
+  if (token) {
+    return <Navigate to="/" replace />
+  }
+  return <>{children}</>
+}
+
 function App() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
+      <Route 
+        path="/login" 
+        element={
+          <GuestRoute>
+            <Login />
+          </GuestRoute>
+        } 
+      />
       
       {/* Protected Routes (Butuh Login) */}
       <Route 
@@ -35,8 +53,9 @@ function App() {
         } 
       >
         <Route index element={<Dashboard />} />
-        <Route path="matakuliah" element={<Placeholder title="Kelola Matakuliah" />} />
+        <Route path="matakuliah" element={<Matakuliah />} />
         <Route path="materi" element={<Placeholder title="Kelola Materi" />} />
+        <Route path="materi/tambah" element={<Placeholder title="Tambah Materi Baru" />} />
         <Route path="jadwal" element={<Placeholder title="Kelola Jadwal" />} />
       </Route>
 
