@@ -1,4 +1,5 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseInterceptors } from '@nestjs/common';
+import { CacheInterceptor, CacheKey } from '@nestjs/cache-manager';
 import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { PublicService } from './public.service';
 
@@ -9,6 +10,8 @@ export class PublicController {
 
   // FR-01: Daftar semua matakuliah
   @Get('matakuliah')
+  @UseInterceptors(CacheInterceptor)
+  @CacheKey('public_matakuliah')
   @ApiOperation({ summary: 'Daftar semua matakuliah (FR-01)' })
   getAllMatakuliah() {
     return this.publicService.getAllMatakuliah();
@@ -58,6 +61,8 @@ export class PublicController {
 
   // FR-32: Daftar jadwal perkuliahan
   @Get('jadwal')
+  @UseInterceptors(CacheInterceptor)
+  @CacheKey('public_jadwal')
   @ApiOperation({ summary: 'Daftar jadwal perkuliahan publik (FR-32)' })
   getAllJadwal() {
     return this.publicService.getAllJadwal();

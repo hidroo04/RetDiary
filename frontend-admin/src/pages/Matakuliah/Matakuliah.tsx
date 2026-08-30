@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -9,21 +10,17 @@ import {
   Clock, 
   ArrowRight, 
   MoreHorizontal, 
-  FileText, 
   FileDown, 
   X, 
   Loader2, 
   BookOpen, 
-  GraduationCap,
   Sparkles,
-  ExternalLink,
-  Trash2,
-  Edit3
+  ExternalLink
 } from 'lucide-react';
 import { matakuliahApi } from '@/api/matakuliah.api';
 import { jadwalApi } from '@/api/jadwal.api';
 import { materiApi } from '@/api/materi.api';
-import type { Matakuliah, Jadwal, MateriListItem } from '@/types/domain.types';
+import type { Matakuliah } from '@/types/domain.types';
 import styles from './Matakuliah.module.css';
 
 const HARI_MAP = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'] as const;
@@ -50,6 +47,33 @@ export default function MatakuliahPage() {
     }, 5000);
     return () => clearInterval(timer);
   }, []);
+
+  // Rendered modals live in document.body (via a portal), so they are not
+  // constrained by the page transition's transformed/scrollable container.
+  useEffect(() => {
+    const isModalOpen = Boolean(selectedCourseForClass) || isAddModalOpen;
+    if (!isModalOpen) return;
+
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+
+      setSelectedCourseForClass(null);
+      setIsAddModalOpen(false);
+    };
+
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [selectedCourseForClass, isAddModalOpen]);
 
   // Fetch Courses & Schedules
   const { data: matakuliahList = [], isLoading: isLoadingMK } = useQuery({
@@ -88,20 +112,13 @@ export default function MatakuliahPage() {
     mutationFn: ({ id, data }: { id: string; data: any }) => matakuliahApi.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['matakuliah'] });
+      setIsAddModalOpen(false);
       setEditingCourse(null);
       setFormData({ kode: '', nama: '', deskripsi: '' });
       setFormError('');
     },
     onError: (err: any) => {
       setFormError(err?.response?.data?.message || 'Gagal mengubah mata kuliah.');
-    },
-  });
-
-  // Delete Mutation
-  const deleteMutation = useMutation({
-    mutationFn: matakuliahApi.delete,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['matakuliah'] });
     },
   });
 
@@ -211,13 +228,6 @@ export default function MatakuliahPage() {
     });
     setFormError('');
     setIsAddModalOpen(true);
-  };
-
-  const handleDeleteCourse = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (confirm('Apakah Anda yakin ingin menghapus mata kuliah ini?')) {
-      deleteMutation.mutate(id);
-    }
   };
 
   const handleFormSubmit = (e: React.FormEvent) => {
@@ -495,13 +505,19 @@ export default function MatakuliahPage() {
       </div>
 
       {/* ─── Classroom Modal / Drawer ("Buka Ruang Kelas") ─────────────── */}
-      {selectedCourseForClass && (
+      {selectedCourseForClass && createPortal(
         <div className={styles.modalBackdrop} onClick={() => setSelectedCourseForClass(null)}>
-          <div className={styles.classroomModal} onClick={(e) => e.stopPropagation()}>
+          <div
+            className={styles.classroomModal}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="classroom-modal-title"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className={styles.modalHeader}>
               <div className={styles.modalTitleArea}>
                 <span className={styles.modalSubHeader}>RUANG KELAS DIGITAL</span>
-                <h2 className={styles.modalTitle}>{selectedCourseForClass.nama}</h2>
+                <h2 id="classroom-modal-title" className={styles.modalTitle}>{selectedCourseForClass.nama}</h2>
                 <div className={styles.modalMetaRow}>
                   <span>Kode: <strong>{selectedCourseForClass.kode}</strong></span>
                   <span>•</span>
@@ -514,6 +530,7 @@ export default function MatakuliahPage() {
                 type="button" 
                 className={styles.closeModalBtn}
                 onClick={() => setSelectedCourseForClass(null)}
+                aria-label="Tutup ruang kelas"
               >
                 <X size={20} />
               </button>
@@ -605,21 +622,29 @@ export default function MatakuliahPage() {
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
 
       {/* ─── Add / Edit Course Modal Form ──────────────────────────────── */}
-      {isAddModalOpen && (
+      {isAddModalOpen && createPortal(
         <div className={styles.modalBackdrop} onClick={() => setIsAddModalOpen(false)}>
-          <div className={styles.formModal} onClick={(e) => e.stopPropagation()}>
+          <div
+            className={styles.formModal}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="course-form-modal-title"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-text-primary)' }}>
+              <h3 id="course-form-modal-title" style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-text-primary)' }}>
                 {editingCourse ? 'Edit Mata Kuliah' : 'Tambah Mata Kuliah Baru'}
               </h3>
               <button 
                 type="button" 
                 className={styles.closeModalBtn}
                 onClick={() => setIsAddModalOpen(false)}
+                aria-label="Tutup formulir mata kuliah"
               >
                 <X size={18} />
               </button>
@@ -685,7 +710,8 @@ export default function MatakuliahPage() {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );

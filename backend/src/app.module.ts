@@ -13,6 +13,7 @@ import { MatakuliahModule } from './matakuliah/matakuliah.module';
 import { MateriModule } from './materi/materi.module';
 import { JadwalModule } from './jadwal/jadwal.module';
 import { PublicModule } from './public/public.module';
+import { CacheModule } from '@nestjs/cache-manager';
 
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
@@ -42,6 +43,11 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
             ? { target: 'pino-pretty' }
             : undefined,
       },
+    }),
+
+    // Default In-Memory Cache (sementara karena Redis local belum jalan)
+    CacheModule.register({
+      isGlobal: true,
     }),
 
     // Rate limiting: 100 request/menit per IP (NFR-4.2)

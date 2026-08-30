@@ -54,10 +54,11 @@ export class AuthService {
       this.prisma.materi.count({
         where: { matakuliah: { dosenId } },
       }),
-      this.prisma.materi.findFirst({
+      this.prisma.materi.findMany({
         where: { matakuliah: { dosenId } },
         orderBy: { createdAt: 'desc' },
-        select: { judul: true, createdAt: true, matakuliah: { select: { nama: true } } },
+        take: 5,
+        select: { id: true, judul: true, createdAt: true, matakuliah: { select: { nama: true } } },
       }),
     ]);
 

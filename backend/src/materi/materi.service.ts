@@ -32,6 +32,55 @@ export class MateriService {
     });
   }
 
+  // Daftar seluruh materi milik dosen yang login (dengan relasi matakuliah dan foto)
+  async findAllByDosen(dosenId: string, matakuliahId?: string, search?: string) {
+    return this.prisma.materi.findMany({
+      where: {
+        matakuliah: {
+          dosenId,
+          ...(matakuliahId ? { id: matakuliahId } : {}),
+        },
+        ...(search
+          ? {
+              OR: [
+                { judul: { contains: search, mode: 'insensitive' } },
+                { konten: { contains: search, mode: 'insensitive' } },
+                { matakuliah: { nama: { contains: search, mode: 'insensitive' } } },
+                { matakuliah: { kode: { contains: search, mode: 'insensitive' } } },
+              ],
+            }
+          : {}),
+      },
+      include: {
+        matakuliah: {
+          select: { id: true, nama: true, kode: true },
+        },
+        fotoMateri: {
+          select: { id: true, urlFoto: true, urutan: true },
+          orderBy: { urutan: 'asc' },
+        },
+      },
+      orderBy: [
+        { matakuliah: { nama: 'asc' } },
+        { urutan: 'asc' },
+        { createdAt: 'desc' },
+      ],
+    });
+  }
+
+  // Detail materi milik dosen
+  async findOneByDosen(id: string, dosenId: string) {
+    const materi = await this.prisma.materi.findFirst({
+      where: { id, matakuliah: { dosenId } },
+      include: {
+        matakuliah: { select: { id: true, nama: true, kode: true } },
+        fotoMateri: { orderBy: { urutan: 'asc' } },
+      },
+    });
+    if (!materi) throw new NotFoundException('Materi tidak ditemukan.');
+    return materi;
+  }
+
   async findOne(id: string) {
     const materi = await this.prisma.materi.findUnique({
       where: { id },

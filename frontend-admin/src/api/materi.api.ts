@@ -9,6 +9,16 @@ import type {
 } from '@/types/domain.types';
 
 export const materiApi = {
+  getAll: async (params?: { matakuliahId?: string; search?: string }): Promise<Materi[]> => {
+    const res = await apiClient.get<ApiResponse<Materi[]>>('/admin/materi', { params });
+    return res.data.data;
+  },
+
+  getById: async (id: string): Promise<Materi> => {
+    const res = await apiClient.get<ApiResponse<Materi>>(`/admin/materi/${id}`);
+    return res.data.data;
+  },
+
   getAllByMatakuliah: async (matakuliahId: string): Promise<MateriListItem[]> => {
     const res = await apiClient.get<ApiResponse<MateriListItem[]>>(
       `/admin/matakuliah/${matakuliahId}/materi`,

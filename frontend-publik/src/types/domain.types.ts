@@ -28,13 +28,14 @@ export interface FotoMateri {
 
 export interface Materi {
   id: string;
-  matakuliahId: string;
+  matakuliahId?: string;
   judul: string;
   konten?: string;
   pdfUrl?: string;
   urutan: number;
   createdAt: string;
   fotoMateri: FotoMateri[];
+  matakuliah?: { id: string; nama: string };
 }
 
 export interface MateriListItem {
@@ -45,6 +46,12 @@ export interface MateriListItem {
   konten?: string;
   pdfUrl?: string;
   fotoMateri: FotoMateri[];
+  matakuliah?: { id: string; nama: string };
+}
+
+export interface RekomendasiMateri {
+  rekomendasi: Pick<MateriListItem, 'id' | 'judul' | 'urutan'> | null;
+  isLast: boolean;
 }
 
 export interface CreateMateriRequest {

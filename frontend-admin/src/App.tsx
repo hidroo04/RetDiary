@@ -4,6 +4,9 @@ import Login from '@/pages/Login/Login'
 import { AdminLayout } from '@/layouts/AdminLayout/AdminLayout'
 import Dashboard from '@/pages/Dashboard/Dashboard'
 import Matakuliah from '@/pages/Matakuliah/Matakuliah'
+import Materi from '@/pages/Materi/Materi'
+import TambahMateri from '@/pages/Materi/TambahMateri'
+import Jadwal from '@/pages/Jadwal/Jadwal'
 
 // Dummy component untuk placeholder sementara (menunggu desain)
 const Placeholder = ({ title }: { title: string }) => (
@@ -54,9 +57,9 @@ function App() {
       >
         <Route index element={<Dashboard />} />
         <Route path="matakuliah" element={<Matakuliah />} />
-        <Route path="materi" element={<Placeholder title="Kelola Materi" />} />
-        <Route path="materi/tambah" element={<Placeholder title="Tambah Materi Baru" />} />
-        <Route path="jadwal" element={<Placeholder title="Kelola Jadwal" />} />
+        <Route path="materi" element={<Materi />} />
+        <Route path="materi/tambah" element={<TambahMateri />} />
+        <Route path="jadwal" element={<Jadwal />} />
       </Route>
 
       {/* 404 Not Found */}

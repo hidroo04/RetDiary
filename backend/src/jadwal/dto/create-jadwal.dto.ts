@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-const HARI_VALID = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const HARI_VALID = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 
 export class CreateJadwalDto {
   @ApiProperty({ example: 'uuid-matakuliah' })
@@ -17,7 +17,7 @@ export class CreateJadwalDto {
   matakuliahId: string;
 
   @ApiProperty({ example: 'Senin', enum: HARI_VALID })
-  @IsIn(HARI_VALID, { message: 'Hari tidak valid. Pilih salah satu dari: Senin, Selasa, Rabu, Kamis, Jumat, Sabtu.' })
+  @IsIn(HARI_VALID, { message: 'Hari tidak valid. Pilih salah satu dari: Senin, Selasa, Rabu, Kamis, Jumat, Sabtu, Minggu.' })
   hari: string;
 
   @ApiProperty({ example: '08:00' })

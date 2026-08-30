@@ -34,7 +34,13 @@ export interface Materi {
   pdfUrl?: string;
   urutan: number;
   createdAt: string;
+  updatedAt?: string;
   fotoMateri: FotoMateri[];
+  matakuliah?: {
+    id: string;
+    nama: string;
+    kode: string;
+  };
 }
 
 export interface MateriListItem {
@@ -45,6 +51,11 @@ export interface MateriListItem {
   konten?: string;
   pdfUrl?: string;
   fotoMateri: FotoMateri[];
+  matakuliah?: {
+    id: string;
+    nama: string;
+    kode: string;
+  };
 }
 
 export interface CreateMateriRequest {
@@ -58,7 +69,7 @@ export type UpdateMateriRequest = Partial<CreateMateriRequest>;
 
 // ─── Jadwal Types ──────────────────────────────────────────────────────────
 
-export type HariKuliah = 'Senin' | 'Selasa' | 'Rabu' | 'Kamis' | 'Jumat' | 'Sabtu';
+export type HariKuliah = 'Senin' | 'Selasa' | 'Rabu' | 'Kamis' | 'Jumat' | 'Sabtu' | 'Minggu';
 
 export interface Jadwal {
   id: string;

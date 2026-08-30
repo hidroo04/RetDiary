@@ -1,16 +1,22 @@
 import {
   ConflictException,
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMatakuliahDto } from './dto/create-matakuliah.dto';
 import { UpdateMatakuliahDto } from './dto/update-matakuliah.dto';
 
 @Injectable()
 export class MatakuliahService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {}
 
   // FR-13: Daftar matakuliah milik dosen yang login
   async findAllByDosen(dosenId: string) {
@@ -40,9 +46,15 @@ export class MatakuliahService {
     if (existing) {
       throw new ConflictException('Kode matakuliah sudah digunakan.');
     }
-    return this.prisma.matakuliah.create({
+    const result = await this.prisma.matakuliah.create({
       data: { ...dto, dosenId },
     });
+    
+    // Invalidate public caches
+    await this.cacheManager.del('public_matakuliah');
+    await this.cacheManager.del('public_jadwal');
+    
+    return result;
   }
 
   // FR-15: Ubah matakuliah
@@ -58,10 +70,16 @@ export class MatakuliahService {
       }
     }
 
-    return this.prisma.matakuliah.update({
+    const result = await this.prisma.matakuliah.update({
       where: { id },
       data: dto,
     });
+
+    // Invalidate public caches
+    await this.cacheManager.del('public_matakuliah');
+    await this.cacheManager.del('public_jadwal');
+
+    return result;
   }
 
   // FR-16: Hapus matakuliah (cascade ke materi & jadwal via DB)
@@ -73,6 +91,13 @@ export class MatakuliahService {
     if (matakuliah.dosenId !== dosenId) {
       throw new ForbiddenException('Anda tidak memiliki akses ke matakuliah ini.');
     }
-    return this.prisma.matakuliah.delete({ where: { id } });
+    
+    const result = await this.prisma.matakuliah.delete({ where: { id } });
+
+    // Invalidate public caches
+    await this.cacheManager.del('public_matakuliah');
+    await this.cacheManager.del('public_jadwal');
+
+    return result;
   }
 }

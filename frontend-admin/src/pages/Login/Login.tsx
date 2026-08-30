@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { authApi } from '@/api/auth.api';
 import { useAuthStore } from '@/stores/auth.store';
-import { Mail, Lock, BookOpen, Calendar, PieChart } from 'lucide-react';
+import { Mail, Lock, BookOpen, Calendar, PieChart, ShieldCheck } from 'lucide-react';
 import illustrationImg from '../../assets/kelinci.png';
 import styles from './Login.module.css';
 
@@ -120,9 +120,9 @@ export default function Login() {
               {errors.password && <span className={styles.errorMessage}>{errors.password.message}</span>}
             </div>
 
-            <div className={styles.checkboxGroup}>
-              <input type="checkbox" id="remember" />
-              <label htmlFor="remember">Ingat saya di perangkat ini</label>
+            <div className={styles.sessionInfo}>
+              <ShieldCheck size={17} />
+              <span>Sesi aman ini berakhir otomatis saat tab ditutup.</span>
             </div>
 
             <button type="submit" className={styles.submitBtn} disabled={isSubmitting}>

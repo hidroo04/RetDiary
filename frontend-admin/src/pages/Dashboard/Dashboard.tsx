@@ -107,10 +107,8 @@ export default function Dashboard() {
     <div className={styles.dashboard}>
       <header className={styles.header}>
         <div className={styles.titleArea}>
-          <span className={styles.subtitle}>PANEL PENGELOLAAN • RETDIARY</span>
-          <h1 className={styles.title}>
-            Selamat datang, {dosen?.nama || 'Pengajar'}
-          </h1>
+          <span className={styles.subtitle}>SELAMAT DATANG KEMBALI, {dosen?.nama || 'PENGAJAR'}</span>
+          <h1 className={styles.title}>Dashboard</h1>
           <span className={styles.subtitle2}>
             Pantau aktivitas pembelajaran dan jadwal kuliah Anda secara real-time.
           </span>
@@ -301,4 +299,3 @@ export default function Dashboard() {
     </div>
   );
 }
-

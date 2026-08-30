@@ -1,6 +1,6 @@
 import apiClient from './client';
 import type { ApiResponse, PaginatedResponse } from '@/types/api.types';
-import type { Materi, MateriListItem } from '@/types/domain.types';
+import type { Materi, MateriListItem, RekomendasiMateri } from '@/types/domain.types';
 
 export const materiPublicApi = {
   // Ambil daftar materi per matakuliah dengan pagination
@@ -21,14 +21,9 @@ export const materiPublicApi = {
     return res.data.data;
   },
 
-  // Ambil rekomendasi materi (materi lain dari matakuliah yang sama, atau materi terbaru global)
-  getRekomendasi: async (
-    materiId: string, 
-    isLast: boolean = false
-  ): Promise<MateriListItem[]> => {
-    const res = await apiClient.get<ApiResponse<MateriListItem[]>>(
-      `/public/materi/${materiId}/rekomendasi`,
-      { params: { isLast } }
+  getRekomendasi: async (materiId: string): Promise<RekomendasiMateri> => {
+    const res = await apiClient.get<ApiResponse<RekomendasiMateri>>(
+      `/public/materi/${materiId}/rekomendasi`
     );
     return res.data.data;
   },

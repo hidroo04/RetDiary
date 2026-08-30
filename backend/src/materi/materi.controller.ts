@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UploadedFile,
   UploadedFiles,
   UseGuards,
@@ -36,6 +37,27 @@ interface DosenPayload {
 @Controller('api/admin')
 export class MateriController {
   constructor(private readonly materiService: MateriService) {}
+
+  // Daftar semua materi milik dosen yang login
+  @Get('materi')
+  @ApiOperation({ summary: 'Daftar semua materi milik dosen yang login' })
+  findAllDosen(
+    @CurrentUser() user: DosenPayload,
+    @Query('matakuliahId') matakuliahId?: string,
+    @Query('search') search?: string,
+  ) {
+    return this.materiService.findAllByDosen(user.id, matakuliahId, search);
+  }
+
+  // Detail satu materi milik dosen
+  @Get('materi/:id')
+  @ApiOperation({ summary: 'Detail satu materi milik dosen' })
+  findOne(
+    @Param('id') id: string,
+    @CurrentUser() user: DosenPayload,
+  ) {
+    return this.materiService.findOneByDosen(id, user.id);
+  }
 
   // FR-17: Daftar materi per matakuliah (admin)
   @Get('matakuliah/:matakuliahId/materi')

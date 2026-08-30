@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 import type { Dosen, LoginResponse } from '@/types/auth.types';
 
 interface AuthState {
@@ -24,7 +24,8 @@ export const useAuthStore = create<AuthState>()(
       logout: () => set({ token: null, dosen: null }),
     }),
     {
-      name: 'retdiary-auth-storage', // name of the item in the storage (must be unique)
+      name: 'retdiary-auth-session',
+      storage: createJSONStorage(() => sessionStorage),
     }
   )
 );

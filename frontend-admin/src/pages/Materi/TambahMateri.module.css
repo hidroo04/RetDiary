@@ -1,0 +1,610 @@
+/* ─── Tambah Materi Styles (RetDiary Matching Mockup) ───────────── */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 2.5vw, 2.25rem);
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding-bottom: 3.5rem;
+}
+
+/* ─── Header Section ────────────────────────────────────────────── */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.titleArea {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.subtitle {
+  font-size: clamp(0.7rem, 0.9vw, 0.78rem);
+  color: var(--color-primary-lilac);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 800;
+}
+
+.title {
+  font-size: clamp(1.6rem, 2.8vw, 2.25rem);
+  font-weight: 800;
+  color: var(--color-text-primary);
+  margin: 0.15rem 0 0.25rem 0;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.description {
+  font-size: clamp(0.85rem, 1.1vw, 0.95rem);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.notifBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.08);
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  flex-shrink: 0;
+}
+
+.notifBtn:hover {
+  box-shadow: 0 6px 18px rgba(139, 92, 246, 0.2);
+  color: var(--color-primary-lilac);
+  background: white;
+  transform: translateY(-2px);
+}
+
+/* ─── Two-Column Layout ─────────────────────────────────────────── */
+.formLayout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 2rem;
+  align-items: start;
+}
+
+/* ─── Left Column: Main Form Card ───────────────────────────────── */
+.mainCard {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(226, 220, 245, 0.8);
+  border-radius: 24px;
+  padding: clamp(1.5rem, 2.5vw, 2.25rem);
+  box-shadow: 0 10px 32px -6px rgba(139, 92, 246, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Segmented Tab Switcher (Tulis materi vs Unggah PDF) */
+.segmentedTabContainer {
+  background: #f1eff8;
+  border-radius: 16px;
+  padding: 6px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  border: 1px solid rgba(226, 220, 245, 0.7);
+}
+
+.tabBtn {
+  padding: 0.8rem 1.25rem;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 0.92rem;
+  font-weight: 600;
+  font-family: var(--sans);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.tabBtn:hover:not(.tabBtnActive) {
+  color: var(--color-text-primary);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.tabBtnActive {
+  background: #ffffff !important;
+  color: var(--color-text-primary) !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.12);
+  border-color: rgba(226, 220, 245, 0.8) !important;
+}
+
+/* Form Fields */
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formLabel {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.formInput {
+  width: 100%;
+  padding: 0.95rem 1.25rem;
+  border-radius: 14px;
+  border: 1px solid rgba(226, 220, 245, 0.85);
+  background: #fbf9fe;
+  font-family: var(--sans);
+  font-size: 0.92rem;
+  color: var(--color-text-primary);
+  outline: none;
+  transition: all 0.18s ease;
+}
+
+.formInput::placeholder {
+  color: #94a3b8;
+}
+
+.formInput:focus {
+  border-color: var(--color-primary-lilac);
+  box-shadow: 0 0 0 3.5px rgba(139, 92, 246, 0.15);
+  background: #ffffff;
+}
+
+/* Custom Select Dropdown with Chevron */
+.selectWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.formSelect {
+  width: 100%;
+  padding: 0.95rem 2.8rem 0.95rem 1.25rem;
+  border-radius: 14px;
+  border: 1px solid rgba(226, 220, 245, 0.85);
+  background: #fbf9fe;
+  font-family: var(--sans);
+  font-size: 0.92rem;
+  color: var(--color-text-primary);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: all 0.18s ease;
+}
+
+.formSelect:focus {
+  border-color: var(--color-primary-lilac);
+  box-shadow: 0 0 0 3.5px rgba(139, 92, 246, 0.15);
+  background: #ffffff;
+}
+
+.selectChevron {
+  position: absolute;
+  right: 1.15rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-primary);
+  pointer-events: none;
+}
+
+/* Textarea for "Tulis materi" */
+.formTextarea {
+  width: 100%;
+  min-height: 240px;
+  padding: 1.15rem 1.25rem;
+  border-radius: 16px;
+  border: 1px solid rgba(226, 220, 245, 0.85);
+  background: #fbf9fe;
+  font-family: var(--sans);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  outline: none;
+  resize: vertical;
+  transition: all 0.18s ease;
+}
+
+.formTextarea::placeholder {
+  color: #94a3b8;
+}
+
+.formTextarea:focus {
+  border-color: var(--color-primary-lilac);
+  box-shadow: 0 0 0 3.5px rgba(139, 92, 246, 0.15);
+  background: #ffffff;
+}
+
+/* PDF Upload Dropzone (Tab "Unggah PDF") */
+.pdfDropzone {
+  border: 2px dashed rgba(167, 139, 250, 0.65);
+  background: #fbf9ff;
+  border-radius: 18px;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pdfDropzone:hover {
+  border-color: var(--color-primary-lilac);
+  background: #f6f0ff;
+}
+
+.pdfDropzoneIcon {
+  color: #7c3aed;
+  margin-bottom: 0.25rem;
+}
+
+.pdfDropzoneTitle {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.pdfDropzoneSub {
+  font-size: 0.82rem;
+  color: var(--color-text-secondary);
+  margin: 0 0 0.5rem 0;
+}
+
+.pdfSelectBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 1.35rem;
+  background: #ffffff;
+  border: 1px solid rgba(226, 220, 245, 0.95);
+  border-radius: 10px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  font-family: var(--sans);
+  color: var(--color-text-primary);
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.08);
+  pointer-events: none;
+}
+
+.filePreviewCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: #ede9fe;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 16px;
+  margin-top: 0.25rem;
+}
+
+.filePreviewInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.filePreviewDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.filePreviewName {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #5b21b6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.filePreviewSize {
+  font-size: 0.76rem;
+  color: #7c3aed;
+}
+
+.removePdfBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.8);
+  color: #6b21a8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.removePdfBtn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* Foto Pendukung Dropzone (Green/Mint Tint) */
+.fotoDropzone {
+  border: 2px dashed rgba(16, 185, 129, 0.45);
+  background: rgba(236, 253, 245, 0.45);
+  border-radius: 18px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fotoDropzone:hover {
+  border-color: #10b981;
+  background: rgba(236, 253, 245, 0.7);
+}
+
+.fotoDropzoneIcon {
+  color: #059669;
+  margin-bottom: 0.2rem;
+}
+
+.fotoDropzoneTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.fotoDropzoneSub {
+  font-size: 0.82rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* Photo Thumbnail Grid */
+.photoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.65rem;
+}
+
+.photoThumbnail {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1/1;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.photoThumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.removePhotoBtn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.65);
+  color: white;
+  border: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.removePhotoBtn:hover {
+  background: #ef4444;
+}
+
+/* ─── Right Column: Sidebar Widgets ─────────────────────────────── */
+.sidebarColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  position: sticky;
+  top: 1.5rem;
+}
+
+/* Widget 1: Status Publikasi */
+.statusCard {
+  background: #f5f0ff;
+  border: 1px solid rgba(196, 181, 253, 0.6);
+  border-radius: 20px;
+  padding: 1.4rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.cardEyebrow {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.eyebrowPurple {
+  color: #7c3aed;
+}
+
+.eyebrowGreen {
+  color: #059669;
+}
+
+.cardTitle {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.cardDesc {
+  font-size: 0.82rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Widget 2: Checklist */
+.checklistCard {
+  background: #f0fdf4;
+  border: 1px solid rgba(167, 243, 208, 0.8);
+  border-radius: 20px;
+  padding: 1.4rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.checklistList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.checklistItem {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #64748b;
+  transition: all 0.2s ease;
+}
+
+.checklistItemActive {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.checkIcon {
+  color: #cbd5e1;
+  transition: color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.checkIconActive {
+  color: #059669;
+}
+
+/* Action Buttons */
+.actionButtonsRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.btnBatal {
+  padding: 0.9rem 1.25rem;
+  background: #ffffff;
+  border: 1px solid rgba(226, 220, 245, 0.9);
+  border-radius: 16px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  font-family: var(--sans);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.04);
+  transition: all 0.18s ease;
+}
+
+.btnBatal:hover {
+  background: #f8f7fd;
+  border-color: var(--color-primary-lilac);
+}
+
+.btnSimpan {
+  padding: 0.9rem 1.25rem;
+  background: #6d55b8;
+  border: none;
+  border-radius: 16px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  font-family: var(--sans);
+  color: #ffffff;
+  cursor: pointer;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 6px 20px rgba(109, 85, 184, 0.35);
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.btnSimpan:hover:not(:disabled) {
+  background: #5b42a5;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(109, 85, 184, 0.45);
+}
+
+.btnSimpan:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Error Banner */
+.errorBanner {
+  padding: 0.85rem 1.25rem;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  border-radius: 14px;
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+/* ─── Responsive Media Queries ──────────────────────────────────── */
+@media (max-width: 960px) {
+  .formLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebarColumn {
+    position: static;
+  }
+}

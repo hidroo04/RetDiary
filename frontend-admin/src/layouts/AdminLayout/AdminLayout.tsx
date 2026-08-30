@@ -1,22 +1,42 @@
-import { useState, useEffect } from 'react';
-import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { useAuthStore } from '@/stores/auth.store';
-import { 
-  LayoutDashboard, 
-  BookOpen, 
-  FolderOpen, 
-  CalendarDays, 
-  LogOut,
+import { useEffect, useState } from 'react';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import {
+  BookOpen,
+  Bell,
+  CalendarDays,
   ChevronDown,
   FileText,
-  Plus,
+  FolderOpen,
+  LayoutDashboard,
+  LogOut,
   Menu,
-  X,
-  Sparkles,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
+  Plus,
+  Search,
+  X,
 } from 'lucide-react';
+import { useAuthStore } from '@/stores/auth.store';
 import styles from './AdminLayout.module.css';
+
+const PAGE_NAMES: Record<string, string> = {
+  '/': 'Ringkasan',
+  '/matakuliah': 'Mata kuliah',
+  '/materi': 'Semua materi',
+  '/materi/tambah': 'Tambah materi',
+  '/jadwal': 'Jadwal',
+};
+
+const getInitials = (name?: string) => {
+  if (!name) return 'DS';
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase();
+};
 
 export const AdminLayout = () => {
   const { dosen, logout } = useAuthStore();
@@ -26,15 +46,8 @@ export const AdminLayout = () => {
   const [materiOpen, setMateriOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Auto-expand materi dropdown if currently in a /materi route
   useEffect(() => {
-    if (location.pathname.startsWith('/materi')) {
-      setMateriOpen(true);
-    }
-  }, [location.pathname]);
-
-  // Tutup drawer mobile saat rute berubah
-  useEffect(() => {
+    if (location.pathname.startsWith('/materi')) setMateriOpen(true);
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
@@ -44,222 +57,161 @@ export const AdminLayout = () => {
   };
 
   const isMateriActive = location.pathname.startsWith('/materi');
+  const currentPageName = PAGE_NAMES[location.pathname] ?? 'RetDiary';
 
   return (
     <div className={styles.layoutWrapper}>
-      {/* ─── Mobile Top App Bar ────────────────────────────────────────── */}
       <header className={styles.mobileTopBar}>
         <div className={styles.mobileBrand}>
-          <div className={styles.avatarMini}>
-            <Sparkles size={18} className={styles.sparkleIcon} />
-          </div>
-          <div className={styles.mobileBrandInfo}>
-            <span className={styles.mobileAppName}>RetDiary</span>
-            <span className={styles.mobileUserName}>{dosen?.nama || 'Dosen'}</span>
+          <span className={styles.brandMark}>R</span>
+          <div>
+            <strong>RetDiary</strong>
+            <span>{currentPageName}</span>
           </div>
         </div>
-
-        <button 
+        <button
           className={styles.mobileMenuToggle}
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle navigation menu"
+          onClick={() => setMobileMenuOpen((open) => !open)}
+          aria-label={mobileMenuOpen ? 'Tutup navigasi' : 'Buka navigasi'}
         >
-          {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+          {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </header>
 
-      {/* ─── Mobile Backdrop Overlay ───────────────────────────────────── */}
       {mobileMenuOpen && (
-        <div 
-          className={styles.mobileBackdrop} 
+        <button
+          className={styles.mobileBackdrop}
           onClick={() => setMobileMenuOpen(false)}
+          aria-label="Tutup navigasi"
         />
       )}
 
-      {/* ─── Modern Floating Pill Sidebar (Desktop & Mobile Drawer) ────── */}
-      <aside 
-        className={`
-          ${styles.sidebar} 
-          ${isCollapsed ? styles.collapsed : ''} 
-          ${mobileMenuOpen ? styles.mobileSidebarOpen : ''}
-        `}
-      >
+      <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''} ${mobileMenuOpen ? styles.mobileSidebarOpen : ''}`}>
         <div className={styles.sidebarInner}>
-          {/* ─── Header / Brand ────────────────────────────────────────── */}
-          <div className={styles.header}>
-            <div className={styles.logoContainer}>
-              <div className={styles.logoBadge}>
-                <Sparkles size={20} className={styles.sparkleIcon} />
+          <div className={styles.sidebarTop}>
+            <div className={styles.brandRow}>
+              <div className={styles.brandIdentity}>
+                <span className={styles.brandMark}>R</span>
+                <div className={styles.brandCopy}>
+                  <strong>RetDiary</strong>
+                  <span>Panel pengajar</span>
+                </div>
               </div>
-            </div>
-            <div className={styles.userInfo}>
-              <span className={styles.appName}>RetDiary</span>
-              <span className={styles.userRole}>POLINELA • DOSEN</span>
-            </div>
-          </div>
-
-          {/* ─── Main Navigation List ──────────────────────────────────── */}
-          <nav className={styles.nav}>
-            {/* Dashboard / Ringkasan */}
-            <div className={styles.navItemWrapper}>
-              <NavLink
-                to="/"
-                className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}
-                end
+              <button
+                className={styles.collapseButton}
+                onClick={() => setIsCollapsed((collapsed) => !collapsed)}
+                aria-label={isCollapsed ? 'Perbesar sidebar' : 'Perkecil sidebar'}
               >
-                <div className={styles.iconContainer}>
-                  <LayoutDashboard size={20} className={styles.navIcon} />
-                </div>
-                <span className={styles.navLabel}>Ringkasan</span>
-              </NavLink>
-              {isCollapsed && <div className={styles.tooltipBadge}>Ringkasan</div>}
-            </div>
-            
-            {/* Mata Kuliah */}
-            <div className={styles.navItemWrapper}>
-              <NavLink
-                to="/matakuliah"
-                className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}
-              >
-                <div className={styles.iconContainer}>
-                  <BookOpen size={20} className={styles.navIcon} />
-                </div>
-                <span className={styles.navLabel}>Mata kuliah</span>
-              </NavLink>
-              {isCollapsed && <div className={styles.tooltipBadge}>Mata kuliah</div>}
+                {isCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+              </button>
             </div>
 
-            {/* Dropdown Materi (Accordion when expanded, Flyout popover when collapsed) */}
-            <div className={`${styles.dropdownContainer} ${isMateriActive ? styles.dropdownActiveGroup : ''}`}>
-              <div className={styles.navItemWrapper}>
-                <button 
+            <span className={styles.navSectionLabel}>Ruang kerja</span>
+            <nav className={styles.nav} aria-label="Navigasi utama">
+              <NavLink to="/" end className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}>
+                <LayoutDashboard size={19} />
+                <span>Ringkasan</span>
+                <i />
+              </NavLink>
+
+              <NavLink to="/matakuliah" className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}>
+                <BookOpen size={19} />
+                <span>Mata kuliah</span>
+                <i />
+              </NavLink>
+
+              <div className={`${styles.navGroup} ${isMateriActive ? styles.navGroupActive : ''}`}>
+                <button
                   type="button"
-                  className={`${styles.navItem} ${styles.dropdownTrigger} ${isMateriActive ? styles.activeTrigger : ''}`}
+                  className={`${styles.navItem} ${isMateriActive ? styles.groupTriggerActive : ''}`}
                   onClick={() => {
-                    if (isCollapsed) {
-                      setIsCollapsed(false);
-                      setMateriOpen(true);
-                    } else {
-                      setMateriOpen(!materiOpen);
-                    }
+                    if (isCollapsed) setIsCollapsed(false);
+                    setMateriOpen((open) => !open);
                   }}
                 >
-                  <div className={styles.triggerIconGroup}>
-                    <div className={styles.iconContainer}>
-                      <FolderOpen size={20} className={styles.navIcon} />
-                    </div>
-                    <span className={styles.navLabel}>Materi</span>
-                  </div>
-                  <ChevronDown 
-                    size={16} 
-                    className={`${styles.chevron} ${materiOpen && !isCollapsed ? styles.chevronOpen : ''}`} 
-                  />
+                  <FolderOpen size={19} />
+                  <span>Materi</span>
+                  <ChevronDown className={`${styles.chevron} ${materiOpen ? styles.chevronOpen : ''}`} size={16} />
                 </button>
-
-                {/* Flyout Submenu for Collapsed Mode */}
-                {isCollapsed && (
-                  <div className={styles.flyoutSubmenu}>
-                    <div className={styles.flyoutHeader}>Materi</div>
-                    <NavLink
-                      to="/materi"
-                      end
-                      className={({ isActive }) => `${styles.flyoutItem} ${isActive ? styles.activeFlyout : ''}`}
-                    >
-                      <FileText size={15} />
-                      <span>Semua materi</span>
-                    </NavLink>
-                    <NavLink
-                      to="/materi/tambah"
-                      className={({ isActive }) => `${styles.flyoutItem} ${isActive ? styles.activeFlyout : ''}`}
-                    >
-                      <Plus size={15} />
-                      <span>Tambah materi</span>
-                    </NavLink>
-                  </div>
-                )}
-              </div>
-              
-              {/* Accordion Submenu for Expanded Mode */}
-              <div className={`${styles.dropdownContent} ${materiOpen && !isCollapsed ? styles.dropdownOpen : ''}`}>
-                <NavLink
-                  to="/materi"
-                  end
-                  className={({ isActive }) => `${styles.subNavItem} ${isActive ? styles.activeSub : ''}`}
-                >
-                  <FileText size={16} className={styles.navIcon} />
-                  <span>Semua materi</span>
-                </NavLink>
-                <NavLink
-                  to="/materi/tambah"
-                  className={({ isActive }) => `${styles.subNavItem} ${isActive ? styles.activeSub : ''}`}
-                >
-                  <Plus size={16} className={styles.navIcon} />
-                  <span>Tambah materi</span>
-                </NavLink>
-              </div>
-            </div>
-
-            {/* Jadwal */}
-            <div className={styles.navItemWrapper}>
-              <NavLink
-                to="/jadwal"
-                className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}
-              >
-                <div className={styles.iconContainer}>
-                  <CalendarDays size={20} className={styles.navIcon} />
+                <div className={`${styles.subNav} ${materiOpen && !isCollapsed ? styles.subNavOpen : ''}`}>
+                  <NavLink to="/materi" end className={({ isActive }) => `${styles.subNavItem} ${isActive ? styles.subNavActive : ''}`}>
+                    <FileText size={15} /> Semua materi
+                  </NavLink>
+                  <NavLink to="/materi/tambah" className={({ isActive }) => `${styles.subNavItem} ${isActive ? styles.subNavActive : ''}`}>
+                    <Plus size={15} /> Tambah materi
+                  </NavLink>
                 </div>
-                <span className={styles.navLabel}>Jadwal</span>
+              </div>
+
+              <NavLink to="/jadwal" className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}>
+                <CalendarDays size={19} />
+                <span>Jadwal</span>
+                <i />
               </NavLink>
-              {isCollapsed && <div className={styles.tooltipBadge}>Jadwal</div>}
+            </nav>
+          </div>
+
+          <div className={styles.sidebarFooter}>
+            <div className={styles.sessionNote}>
+              <span className={styles.sessionDot} />
+              <div>
+                <strong>Sesi aktif</strong>
+                <span>Berakhir saat tab ditutup</span>
+              </div>
             </div>
 
-            {/* Integrated Collapse Toggle */}
-            <div className={styles.collapseWrapper}>
-              <button 
-                type="button"
-                className={styles.collapseNavItem}
-                onClick={() => setIsCollapsed(!isCollapsed)}
-                aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-              >
-                <div className={styles.iconContainer}>
-                  {isCollapsed ? (
-                    <PanelLeftOpen size={20} className={styles.navIcon} />
-                  ) : (
-                    <PanelLeftClose size={20} className={styles.navIcon} />
-                  )}
-                </div>
-                <span className={styles.navLabel}>
-                  {isCollapsed ? 'Expand' : 'Collapse Sidebar'}
-                </span>
+            <div className={styles.userCard}>
+              <span className={styles.userAvatar}>{getInitials(dosen?.nama)}</span>
+              <div className={styles.userDetails}>
+                <strong>{dosen?.nama || 'Dosen'}</strong>
+                <span>{dosen?.email || 'Pengajar Polinela'}</span>
+              </div>
+              <button className={styles.logoutButton} onClick={handleLogout} aria-label="Keluar" title="Keluar">
+                <LogOut size={17} />
               </button>
-              {isCollapsed && <div className={styles.tooltipBadge}>Buka Sidebar</div>}
-            </div>
-          </nav>
-
-          {/* ─── Footer Section: Log Out Only ─── */}
-          <div className={styles.footerSection}>
-            <div className={styles.navItemWrapper}>
-              <button 
-                type="button" 
-                className={`${styles.navItem} ${styles.logoutBtn}`}
-                onClick={handleLogout}
-                aria-label="Log out"
-              >
-                <div className={styles.iconContainer}>
-                  <LogOut size={20} className={styles.navIcon} />
-                </div>
-                <span className={styles.navLabel}>Log out</span>
-              </button>
-              {isCollapsed && <div className={styles.tooltipBadge}>Log out</div>}
             </div>
           </div>
         </div>
       </aside>
 
-      {/* ─── Main Content Area ────────────────────────────────────────── */}
       <main className={styles.mainContent}>
+        <div className={styles.desktopTopBar}>
+          <div className={styles.topBarStart}>
+            {isCollapsed && (
+              <button
+                type="button"
+                className={styles.sidebarOpenButton}
+                onClick={() => setIsCollapsed(false)}
+                aria-label="Buka sidebar"
+                title="Buka sidebar"
+              >
+                <PanelLeftOpen size={20} />
+              </button>
+            )}
+            <label className={styles.globalSearch}>
+              <Search size={19} />
+              <input type="search" placeholder="Cari mata kuliah atau materi..." aria-label="Cari" />
+            </label>
+          </div>
+          <div className={styles.topBarActions}>
+            <button type="button" className={styles.notificationButton} aria-label="Notifikasi">
+              <Bell size={20} />
+            </button>
+            <div className={styles.topProfile}>
+              <span className={styles.topProfileAvatar}>{getInitials(dosen?.nama)}</span>
+              <div>
+                <strong>{dosen?.nama || 'Dosen'}</strong>
+                <span>Pengajar</span>
+              </div>
+              <ChevronDown size={16} />
+            </div>
+          </div>
+        </div>
+
         <div className={styles.mainScrollable}>
-          <Outlet />
+          <div className={styles.pageTransition} key={location.pathname}>
+            <Outlet />
+          </div>
         </div>
       </main>
     </div>
