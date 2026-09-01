@@ -5,6 +5,7 @@ export interface Matakuliah {
   nama: string;
   kode: string;
   deskripsi?: string;
+  thumbnailUrl?: string;
   createdAt: string;
 }
 
@@ -32,10 +33,11 @@ export interface Materi {
   judul: string;
   konten?: string;
   pdfUrl?: string;
+  thumbnailUrl?: string;
   urutan: number;
   createdAt: string;
   fotoMateri: FotoMateri[];
-  matakuliah?: { id: string; nama: string };
+  matakuliah?: { id: string; nama: string; kode?: string; thumbnailUrl?: string };
 }
 
 export interface MateriListItem {
@@ -45,8 +47,9 @@ export interface MateriListItem {
   createdAt: string;
   konten?: string;
   pdfUrl?: string;
+  thumbnailUrl?: string;
   fotoMateri: FotoMateri[];
-  matakuliah?: { id: string; nama: string };
+  matakuliah?: { id: string; nama: string; kode?: string; thumbnailUrl?: string };
 }
 
 export interface RekomendasiMateri {

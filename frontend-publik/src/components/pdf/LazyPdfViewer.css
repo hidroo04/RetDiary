@@ -1,0 +1,14 @@
+.lazy-pdf-placeholder { min-height: 300px; display: flex; align-items: center; justify-content: center; gap: 22px; padding: 42px; border-top: 1px solid #c8d8cf; background: linear-gradient(135deg, #f7fbf8, #eaf3ee); color: #24483c; }
+.lazy-pdf-icon { display: grid; flex: 0 0 68px; width: 68px; height: 68px; place-items: center; border-radius: 20px; background: white; color: var(--green); box-shadow: 0 12px 30px rgba(20,74,57,.1); }
+.lazy-pdf-placeholder div { max-width: 460px; }
+.lazy-pdf-placeholder strong { font-size: 20px; }
+.lazy-pdf-placeholder p { margin: 6px 0 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.lazy-pdf-placeholder button, .pdf-unload-button { border: 0; border-radius: 999px; padding: 12px 18px; background: var(--green); color: white; font: inherit; font-size: 12px; font-weight: 800; cursor: pointer; }
+.pdf-unload-button { padding: 9px 13px; background: #e3ece7; color: var(--green); }
+.lazy-pdf iframe { border-top: 1px solid #c8d8cf; }
+@media (max-width: 720px) {
+  .lazy-pdf-placeholder { min-height: 330px; flex-direction: column; padding: 34px 22px; text-align: center; }
+  .lazy-pdf-placeholder button { width: 100%; max-width: 280px; }
+  .pdf-viewer-actions { flex-wrap: wrap; }
+  .pdf-unload-button { width: 100%; }
+}

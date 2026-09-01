@@ -1,4 +1,4 @@
-import apiClient from './client';
+import apiClient, { unwrapApiData } from './client';
 import type { ApiResponse, PaginatedResponse } from '@/types/api.types';
 import type { Materi, MateriListItem, RekomendasiMateri } from '@/types/domain.types';
 
@@ -13,18 +13,18 @@ export const materiPublicApi = {
       `/public/matakuliah/${matakuliahId}/materi`,
       { params: { page, limit } }
     );
-    return res.data.data;
+    return unwrapApiData(res.data);
   },
 
   getById: async (id: string): Promise<Materi> => {
     const res = await apiClient.get<ApiResponse<Materi>>(`/public/materi/${id}`);
-    return res.data.data;
+    return unwrapApiData(res.data);
   },
 
   getRekomendasi: async (materiId: string): Promise<RekomendasiMateri> => {
     const res = await apiClient.get<ApiResponse<RekomendasiMateri>>(
       `/public/materi/${materiId}/rekomendasi`
     );
-    return res.data.data;
+    return unwrapApiData(res.data);
   },
 };

@@ -23,6 +23,7 @@ export function ParticleField() {
     let frame = 0
     let width = 0
     let height = 0
+    const movementSpeed = 0.72
     const pointer = { x: -1000, y: -1000, active: false }
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -93,8 +94,8 @@ export function ParticleField() {
             particle.vx = (particle.vx / speed) * maxSpeed
             particle.vy = (particle.vy / speed) * maxSpeed
           }
-          particle.x += particle.vx
-          particle.y += particle.vy
+          particle.x += particle.vx * movementSpeed
+          particle.y += particle.vy * movementSpeed
           if (particle.x < -8) particle.x = width + 8
           if (particle.x > width + 8) particle.x = -8
           if (particle.y < -8) particle.y = height + 8

@@ -1,4 +1,4 @@
-import apiClient from './client';
+import apiClient, { unwrapApiData } from './client';
 import type { ApiResponse } from '@/types/api.types';
 import type { Matakuliah, MateriListItem } from '@/types/domain.types';
 
@@ -12,6 +12,6 @@ export const searchApi = {
     const res = await apiClient.get<ApiResponse<SearchResult>>('/public/search', {
       params: { q: query },
     });
-    return res.data.data;
+    return unwrapApiData(res.data);
   },
 };
