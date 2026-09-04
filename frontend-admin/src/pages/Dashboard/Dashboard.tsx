@@ -1,113 +1,143 @@
-import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { 
-  Bell, 
-  Search, 
-  FileText, 
-  MoreHorizontal, 
-  Loader2, 
-  GraduationCap, 
+import { useState, useEffect } from 'react'
+import { useAsyncQuery } from '@/hooks/useAsync'
+import {
+  Bell,
+  Search,
+  FileText,
+  MoreHorizontal,
+  Loader2,
+  GraduationCap,
   CalendarClock,
   Clock,
   CheckCircle2,
-  CalendarDays
-} from 'lucide-react';
-import { StatCard } from '@/components/StatCard/StatCard';
-import { authApi } from '@/api/auth.api';
-import { jadwalApi } from '@/api/jadwal.api';
-import { useAuthStore } from '@/stores/auth.store';
-import type { Jadwal } from '@/types/domain.types';
-import styles from './Dashboard.module.css';
+  CalendarDays,
+} from 'lucide-react'
+import { StatCard } from '@/components/StatCard/StatCard'
+import { authApi } from '@/api/auth.api'
+import { jadwalApi } from '@/api/jadwal.api'
+import { useAuthStore } from '@/stores/auth.store'
+import type { Jadwal } from '@/types/domain.types'
+import styles from './Dashboard.module.css'
 
-const HARI_MAP = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'] as const;
+const HARI_MAP = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'] as const
 
-type JadwalStatus = 'berlangsung' | 'mendatang' | 'terlewat';
+type JadwalStatus = 'berlangsung' | 'mendatang' | 'terlewat'
+
+function formatTime(date: Date, includeSeconds = false) {
+  const timeParts = [date.getHours(), date.getMinutes()]
+
+  if (includeSeconds) {
+    timeParts.push(date.getSeconds())
+  }
+
+  return timeParts.map((part) => String(part).padStart(2, '0')).join(':')
+}
 
 export default function Dashboard() {
-  const dosen = useAuthStore((state) => state.dosen);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [now, setNow] = useState(new Date());
+  const dosen = useAuthStore((state) => state.dosen)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [now, setNow] = useState(new Date())
 
   // Real-time clock updater (tiap 1 detik)
   useEffect(() => {
     const interval = setInterval(() => {
-      setNow(new Date());
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
+      setNow(new Date())
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [])
 
-  const { data: dashboardData, isLoading: isLoadingDashboard, isError: isErrorDashboard } = useQuery({
-    queryKey: ['dashboard'],
-    queryFn: authApi.getDashboard,
-  });
+  const {
+    data: dashboardData,
+    isLoading: isLoadingDashboard,
+    isError: isErrorDashboard,
+  } = useAsyncQuery('admin:dashboard', authApi.getDashboard)
 
-  const { data: jadwalData, isLoading: isLoadingJadwal, isError: isErrorJadwal } = useQuery({
-    queryKey: ['jadwal'],
-    queryFn: jadwalApi.getAll,
-  });
+  const {
+    data: jadwalData,
+    isLoading: isLoadingJadwal,
+    isError: isErrorJadwal,
+  } = useAsyncQuery('admin:schedules', jadwalApi.getAll)
 
-  const isLoading = isLoadingDashboard || isLoadingJadwal;
-  const isError = isErrorDashboard || isErrorJadwal;
+  const isLoading = isLoadingDashboard || isLoadingJadwal
+  const isError = isErrorDashboard || isErrorJadwal
 
   if (isLoading) {
     return (
-      <div className={styles.dashboard} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+      <div
+        className={styles.dashboard}
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100%',
+        }}
+      >
         <Loader2 className="animate-spin" size={48} color="var(--color-primary-pink)" />
       </div>
-    );
+    )
   }
 
   if (isError) {
     return (
-      <div className={styles.dashboard} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+      <div
+        className={styles.dashboard}
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100%',
+        }}
+      >
         <p style={{ color: 'red' }}>Gagal memuat data dashboard.</p>
       </div>
-    );
+    )
   }
 
   // ─── Real-Time Schedule Calculation ──────────────────────────────────────
-  const todayDayName = HARI_MAP[now.getDay()];
-  const currentTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-  const currentFullTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+  const todayDayName = HARI_MAP[now.getDay()]
+  const currentTimeStr = formatTime(now)
+  const currentFullTimeStr = formatTime(now, true)
 
   const getStatus = (sched: Jadwal): JadwalStatus => {
     if (currentTimeStr > sched.jamSelesai) {
-      return 'terlewat';
+      return 'terlewat'
     }
     if (currentTimeStr >= sched.jamMulai && currentTimeStr <= sched.jamSelesai) {
-      return 'berlangsung';
+      return 'berlangsung'
     }
-    return 'mendatang';
-  };
+    return 'mendatang'
+  }
 
-  const allSchedules = jadwalData || [];
-  
+  const allSchedules = jadwalData || []
+
   // Filter hanya jadwal yang ada pada hari ini (jadwal tetap berulang tiap minggu)
   const todaySchedules = allSchedules
     .filter((j) => j.hari.toLowerCase() === todayDayName.toLowerCase())
-    .sort((a, b) => a.jamMulai.localeCompare(b.jamMulai));
+    .sort((a, b) => a.jamMulai.localeCompare(b.jamMulai))
 
   // Jadwal yang masih tersedia / belum terlewat pada jam hari ini
-  const availableTodaySchedules = todaySchedules.filter((j) => getStatus(j) !== 'terlewat');
-  const availableCount = availableTodaySchedules.length;
-  const totalTodayCount = todaySchedules.length;
-  const passedCount = totalTodayCount - availableCount;
+  const availableTodaySchedules = todaySchedules.filter((j) => getStatus(j) !== 'terlewat')
+  const availableCount = availableTodaySchedules.length
+  const totalTodayCount = todaySchedules.length
+  const passedCount = totalTodayCount - availableCount
 
   // Filter aktivitas materi berdasarkan pencarian
   const recentActivities = (dashboardData?.materiTerbaru || []).filter((act) => {
-    if (!searchQuery.trim()) return true;
-    const q = searchQuery.toLowerCase();
+    if (!searchQuery.trim()) return true
+    const q = searchQuery.toLowerCase()
     return (
       act.judul.toLowerCase().includes(q) ||
       (act.matakuliah?.nama && act.matakuliah.nama.toLowerCase().includes(q))
-    );
-  });
+    )
+  })
 
   return (
     <div className={styles.dashboard}>
       <header className={styles.header}>
         <div className={styles.titleArea}>
-          <span className={styles.subtitle}>SELAMAT DATANG KEMBALI, {dosen?.nama || 'PENGAJAR'}</span>
+          <span className={styles.subtitle}>
+            SELAMAT DATANG KEMBALI, {dosen?.nama || 'PENGAJAR'}
+          </span>
           <h1 className={styles.title}>Dashboard</h1>
           <span className={styles.subtitle2}>
             Pantau aktivitas pembelajaran dan jadwal kuliah Anda secara real-time.
@@ -120,30 +150,30 @@ export default function Dashboard() {
 
       {/* ─── Row Statistik Utama ────────────────────────────────────────── */}
       <section className={styles.statsRow}>
-        <StatCard 
-          title="Mata Kuliah Aktif" 
-          value={dashboardData?.jumlahMatakuliah?.toString() || "0"} 
-          badge="Semester Genap" 
+        <StatCard
+          title="Mata Kuliah Aktif"
+          value={dashboardData?.jumlahMatakuliah?.toString() || '0'}
+          badge="Semester Genap"
           icon={<GraduationCap size={28} />}
           colorTheme="pink"
         />
-        <StatCard 
-          title="Materi Diterbitkan" 
-          value={dashboardData?.jumlahMateri?.toString() || "0"} 
-          badge={`${dashboardData?.jumlahMateri || 0} Modul`} 
+        <StatCard
+          title="Materi Diterbitkan"
+          value={dashboardData?.jumlahMateri?.toString() || '0'}
+          badge={`${dashboardData?.jumlahMateri || 0} Modul`}
           icon={<FileText size={28} />}
           colorTheme="lavender"
         />
-        <StatCard 
-          title="Jadwal Hari Ini" 
-          value={`${availableCount} Sesi`} 
+        <StatCard
+          title="Jadwal Hari Ini"
+          value={`${availableCount} Sesi`}
           badge={
             totalTodayCount === 0
               ? `Libur (${todayDayName})`
               : availableCount === 0
-              ? '✓ Semua Selesai'
-              : `${availableCount} dari ${totalTodayCount} Tersedia`
-          } 
+                ? '✓ Semua Selesai'
+                : `${availableCount} dari ${totalTodayCount} Tersedia`
+          }
           icon={<CalendarClock size={28} />}
           colorTheme="pink"
         />
@@ -155,12 +185,12 @@ export default function Dashboard() {
         <div className={styles.sectionCard}>
           <span className={styles.sectionTitle}>AKTIVITAS TERBARU</span>
           <h2 className={styles.sectionHeading}>Materi Anda</h2>
-          
+
           <div className={styles.searchBar}>
             <Search size={18} color="var(--color-text-secondary)" />
-            <input 
-              type="text" 
-              placeholder="Cari materi atau mata kuliah..." 
+            <input
+              type="text"
+              placeholder="Cari materi atau mata kuliah..."
               className={styles.searchInput}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -169,8 +199,16 @@ export default function Dashboard() {
 
           <div className={styles.activityList}>
             {recentActivities.length === 0 ? (
-              <p style={{ color: 'var(--color-text-secondary)', textAlign: 'center', padding: '2rem 0' }}>
-                {searchQuery ? 'Tidak ada materi yang sesuai dengan pencarian.' : 'Belum ada materi terbaru.'}
+              <p
+                style={{
+                  color: 'var(--color-text-secondary)',
+                  textAlign: 'center',
+                  padding: '2rem 0',
+                }}
+              >
+                {searchQuery
+                  ? 'Tidak ada materi yang sesuai dengan pencarian.'
+                  : 'Belum ada materi terbaru.'}
               </p>
             ) : (
               recentActivities.map((act) => (
@@ -179,7 +217,9 @@ export default function Dashboard() {
                     <FileText size={20} />
                   </div>
                   <div className={styles.activityInfo}>
-                    <span className={styles.activityTitle} title={act.judul}>{act.judul}</span>
+                    <span className={styles.activityTitle} title={act.judul}>
+                      {act.judul}
+                    </span>
                     <span className={styles.activityDesc}>{act.matakuliah?.nama}</span>
                   </div>
                   <div className={styles.activityActions}>
@@ -190,7 +230,9 @@ export default function Dashboard() {
               ))
             )}
           </div>
-          <button className={styles.viewAllBtn}>Lihat semua materi ({dashboardData?.jumlahMateri || 0}) →</button>
+          <button className={styles.viewAllBtn}>
+            Lihat semua materi ({dashboardData?.jumlahMateri || 0}) →
+          </button>
         </div>
 
         {/* Right Column: Real-time Schedule & Progress */}
@@ -199,7 +241,9 @@ export default function Dashboard() {
             <div className={styles.scheduleHeader}>
               <div>
                 <span className={styles.sectionTitle}>HARI INI • {todayDayName.toUpperCase()}</span>
-                <h2 className={styles.sectionHeading} style={{ marginBottom: 0 }}>Jadwal Mengajar</h2>
+                <h2 className={styles.sectionHeading} style={{ marginBottom: 0 }}>
+                  Jadwal Mengajar
+                </h2>
               </div>
               <div className={styles.liveBadge} title="Waktu server / lokal real-time">
                 <span className={styles.liveDot}></span>
@@ -212,7 +256,8 @@ export default function Dashboard() {
                 <span>Tidak ada jadwal mengajar pada hari {todayDayName}.</span>
               ) : (
                 <span>
-                  <strong>{totalTodayCount} sesi</strong> dijadwalkan hari ini · <strong>{availableCount} tersedia</strong>
+                  <strong>{totalTodayCount} sesi</strong> dijadwalkan hari ini ·{' '}
+                  <strong>{availableCount} tersedia</strong>
                   {passedCount > 0 && ` · ${passedCount} telah terlewat`}
                 </span>
               )}
@@ -226,31 +271,39 @@ export default function Dashboard() {
                 </div>
               ) : (
                 todaySchedules.map((sched) => {
-                  const status = getStatus(sched);
-                  const isOngoing = status === 'berlangsung';
-                  const isPassed = status === 'terlewat';
+                  const status = getStatus(sched)
+                  const isOngoing = status === 'berlangsung'
+                  const isPassed = status === 'terlewat'
+                  const scheduleItemClassName = [
+                    styles.scheduleItem,
+                    isOngoing && styles.scheduleItemOngoing,
+                    isPassed && styles.scheduleItemPassed,
+                  ]
+                    .filter(Boolean)
+                    .join(' ')
+                  const scheduleDividerClassName = [
+                    styles.scheduleDivider,
+                    isOngoing
+                      ? styles.scheduleDividerOngoing
+                      : !isPassed && styles.scheduleDividerUpcoming,
+                  ]
+                    .filter(Boolean)
+                    .join(' ')
 
                   return (
-                    <div 
-                      key={sched.id} 
-                      className={`${styles.scheduleItem} ${isOngoing ? styles.scheduleItemOngoing : ''} ${isPassed ? styles.scheduleItemPassed : ''}`}
-                    >
+                    <div key={sched.id} className={scheduleItemClassName}>
                       <div className={styles.scheduleTimeCol}>
                         <span className={styles.scheduleTimeStart}>{sched.jamMulai}</span>
                         <span className={styles.scheduleTimeEnd}>{sched.jamSelesai}</span>
                       </div>
-                      
-                      <div 
-                        className={`${styles.scheduleDivider} ${isOngoing ? styles.scheduleDividerOngoing : isPassed ? '' : styles.scheduleDividerUpcoming}`}
-                      />
-                      
+
+                      <div className={scheduleDividerClassName} />
+
                       <div className={styles.scheduleInfo}>
                         <span className={styles.scheduleTitle} title={sched.matakuliah?.nama}>
                           {sched.matakuliah?.nama || 'Mata Kuliah'}
                         </span>
-                        <span className={styles.scheduleDesc}>
-                          Ruang {sched.ruangan}
-                        </span>
+                        <span className={styles.scheduleDesc}>Ruang {sched.ruangan}</span>
                       </div>
 
                       {/* Status Badge */}
@@ -260,17 +313,18 @@ export default function Dashboard() {
                         </span>
                       )}
                       {status === 'mendatang' && (
-                        <span className={styles.statusBadgeUpcoming}>
-                          Mendatang
-                        </span>
+                        <span className={styles.statusBadgeUpcoming}>Mendatang</span>
                       )}
                       {isPassed && (
-                        <span className={styles.statusBadgePassed} title="Jam jadwal sudah terlewat">
+                        <span
+                          className={styles.statusBadgePassed}
+                          title="Jam jadwal sudah terlewat"
+                        >
                           <CheckCircle2 size={12} /> Selesai
                         </span>
                       )}
                     </div>
-                  );
+                  )
                 })
               )}
             </div>
@@ -285,7 +339,7 @@ export default function Dashboard() {
               <span className={styles.sectionTitle}>PROGRES SEMESTER</span>
               <span className={styles.progressTitle}>Minggu ke-14</span>
             </div>
-            
+
             <div className={styles.progressRow}>
               <span className={styles.progressLabel}>Materi terisi</span>
               <span className={styles.progressPercent}>85%</span>
@@ -297,5 +351,5 @@ export default function Dashboard() {
         </div>
       </section>
     </div>
-  );
+  )
 }

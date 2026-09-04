@@ -1,77 +1,95 @@
-import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
-import { 
-  Bell, 
-  ChevronDown, 
-  FileText, 
-  Image as ImageIcon, 
-  Check, 
-  X, 
-  Loader2 
-} from 'lucide-react';
-import { materiApi } from '@/api/materi.api';
-import { matakuliahApi } from '@/api/matakuliah.api';
-import styles from './TambahMateri.module.css';
+import { useEffect, useState } from 'react'
+import { useAsyncMutation, useAsyncQuery } from '@/hooks/useAsync'
+import { useNavigate } from 'react-router-dom'
+import { Bell, ChevronDown, FileText, Image as ImageIcon, Check, X, Loader2 } from 'lucide-react'
+import { materiApi, validatePdfFile, validateThumbnailFile } from '@/api/materi.api'
+import { matakuliahApi } from '@/api/matakuliah.api'
+import styles from './TambahMateri.module.css'
 
 export default function TambahMateriPage() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const navigate = useNavigate()
 
   // ─── Form State ────────────────────────────────────────────────────────
-  const [activeTab, setActiveTab] = useState<'tulis' | 'pdf'>('tulis');
-  const [judul, setJudul] = useState('');
-  const [matakuliahId, setMatakuliahId] = useState('');
-  const [konten, setKonten] = useState('');
-  const [pdfFile, setPdfFile] = useState<File | null>(null);
-  const [photos, setPhotos] = useState<File[]>([]);
-  const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
-  const [error, setError] = useState('');
+  const [activeTab, setActiveTab] = useState<'tulis' | 'pdf'>('tulis')
+  const [judul, setJudul] = useState('')
+  const [matakuliahId, setMatakuliahId] = useState('')
+  const [konten, setKonten] = useState('')
+  const [pdfFile, setPdfFile] = useState<File | null>(null)
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
+  const [thumbnailPreview, setThumbnailPreview] = useState('')
+  const [photos, setPhotos] = useState<File[]>([])
+  const [photoPreviews, setPhotoPreviews] = useState<string[]>([])
+  const [error, setError] = useState('')
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null)
 
   // ─── Fetch Courses ─────────────────────────────────────────────────────
-  const { data: matakuliahList = [], isLoading: isLoadingMK } = useQuery({
-    queryKey: ['matakuliah'],
-    queryFn: matakuliahApi.getAll,
-  });
+  const { data: matakuliahList = [], isLoading: isLoadingMK } = useAsyncQuery(
+    'admin:courses',
+    matakuliahApi.getAll,
+  )
 
   // ─── Live Checklist Calculations ───────────────────────────────────────
-  const isJudulFilled = judul.trim().length > 0;
-  const isContentOrPdfFilled = activeTab === 'tulis' ? konten.trim().length > 0 : !!pdfFile;
-  const isMatakuliahFilled = matakuliahId.trim().length > 0;
+  const isJudulFilled = judul.trim().length > 0
+  const isContentOrPdfFilled = activeTab === 'tulis' ? konten.trim().length > 0 : !!pdfFile
+  const isMatakuliahFilled = matakuliahId.trim().length > 0
+
+  useEffect(
+    () => () => {
+      if (thumbnailPreview) URL.revokeObjectURL(thumbnailPreview)
+    },
+    [thumbnailPreview],
+  )
+
+  const handleThumbnailSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      validateThumbnailFile(file)
+      setThumbnailFile(file)
+      setThumbnailPreview(URL.createObjectURL(file))
+      setError('')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Thumbnail tidak valid.')
+      e.target.value = ''
+    }
+  }
 
   // ─── Handle Photos ─────────────────────────────────────────────────────
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const files = Array.from(e.target.files);
-      setPhotos((prev) => [...prev, ...files]);
-      const previews = files.map((file) => URL.createObjectURL(file));
-      setPhotoPreviews((prev) => [...prev, ...previews]);
+      const files = Array.from(e.target.files)
+      setPhotos((prev) => [...prev, ...files])
+      const previews = files.map((file) => URL.createObjectURL(file))
+      setPhotoPreviews((prev) => [...prev, ...previews])
     }
-  };
+  }
 
   const removePhoto = (index: number) => {
-    setPhotos((prev) => prev.filter((_, i) => i !== index));
+    setPhotos((prev) => prev.filter((_, i) => i !== index))
     setPhotoPreviews((prev) => {
-      URL.revokeObjectURL(prev[index]);
-      return prev.filter((_, i) => i !== index);
-    });
-  };
+      URL.revokeObjectURL(prev[index])
+      return prev.filter((_, i) => i !== index)
+    })
+  }
 
   // ─── Mutation: Save / Publish ──────────────────────────────────────────
-  const createMutation = useMutation({
+  const createMutation = useAsyncMutation({
     mutationFn: async () => {
+      setError('')
       if (!judul.trim()) {
-        throw new Error('Judul materi wajib diisi.');
+        throw new Error('Judul materi wajib diisi.')
       }
       if (!matakuliahId) {
-        throw new Error('Silakan pilih mata kuliah.');
+        throw new Error('Silakan pilih mata kuliah.')
       }
       if (activeTab === 'tulis' && !konten.trim()) {
-        throw new Error('Isi materi tidak boleh kosong saat memilih tab Tulis materi.');
+        throw new Error('Isi materi tidak boleh kosong saat memilih tab Tulis materi.')
       }
       if (activeTab === 'pdf' && !pdfFile) {
-        throw new Error('Silakan unggah berkas PDF saat memilih tab Unggah PDF.');
+        throw new Error('Silakan unggah berkas PDF saat memilih tab Unggah PDF.')
       }
+      if (pdfFile) validatePdfFile(pdfFile)
+      setUploadProgress(activeTab === 'pdf' || thumbnailFile ? 0 : null)
 
       // Automatically determine next urutan or default to 1
       const created = await materiApi.create(
@@ -81,32 +99,35 @@ export default function TambahMateriPage() {
           konten: activeTab === 'tulis' ? konten.trim() : undefined,
           urutan: 1,
         },
-        activeTab === 'pdf' && pdfFile ? pdfFile : undefined
-      );
+        activeTab === 'pdf' && pdfFile ? pdfFile : undefined,
+        thumbnailFile || undefined,
+        activeTab === 'pdf' || thumbnailFile ? setUploadProgress : undefined,
+      )
+      setUploadProgress(null)
 
       // Upload photos if any
       if (photos.length > 0) {
-        await materiApi.uploadFoto(created.id, photos);
+        await materiApi.uploadFoto(created.id, photos)
       }
 
-      return created;
+      return created
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['materi-all'] });
-      navigate('/materi');
+      navigate('/materi')
     },
     onError: (err: any) => {
-      setError(err?.response?.data?.message || err?.message || 'Gagal menyimpan materi.');
+      setUploadProgress(null)
+      setError(err?.response?.data?.message || err?.message || 'Gagal menyimpan materi.')
     },
-  });
+  })
 
   const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+  }
 
   return (
     <div className={styles.container}>
@@ -120,8 +141,8 @@ export default function TambahMateriPage() {
           </p>
         </div>
 
-        <button 
-          type="button" 
+        <button
+          type="button"
           className={styles.notifBtn}
           title="Pemberitahuan"
           aria-label="Pemberitahuan"
@@ -140,8 +161,8 @@ export default function TambahMateriPage() {
               type="button"
               className={`${styles.tabBtn} ${activeTab === 'tulis' ? styles.tabBtnActive : ''}`}
               onClick={() => {
-                setActiveTab('tulis');
-                setError('');
+                setActiveTab('tulis')
+                setError('')
               }}
             >
               Tulis materi
@@ -150,8 +171,8 @@ export default function TambahMateriPage() {
               type="button"
               className={`${styles.tabBtn} ${activeTab === 'pdf' ? styles.tabBtnActive : ''}`}
               onClick={() => {
-                setActiveTab('pdf');
-                setError('');
+                setActiveTab('pdf')
+                setError('')
               }}
             >
               Unggah PDF
@@ -163,8 +184,8 @@ export default function TambahMateriPage() {
           {/* Form Fields */}
           <form
             onSubmit={(e) => {
-              e.preventDefault();
-              createMutation.mutate();
+              e.preventDefault()
+              createMutation.mutate()
             }}
             style={{ display: 'flex', flexDirection: 'column', gap: '1.35rem' }}
           >
@@ -225,7 +246,9 @@ export default function TambahMateriPage() {
                       <FileText size={26} color="#7c3aed" />
                       <div className={styles.filePreviewDetails}>
                         <span className={styles.filePreviewName}>{pdfFile.name}</span>
-                        <span className={styles.filePreviewSize}>{formatFileSize(pdfFile.size)}</span>
+                        <span className={styles.filePreviewSize}>
+                          {formatFileSize(pdfFile.size)}
+                        </span>
                       </div>
                     </div>
                     <button
@@ -249,7 +272,17 @@ export default function TambahMateriPage() {
                       type="file"
                       accept="application/pdf"
                       onChange={(e) => {
-                        if (e.target.files?.[0]) setPdfFile(e.target.files[0]);
+                        const file = e.target.files?.[0]
+                        if (!file) return
+                        try {
+                          validatePdfFile(file)
+                          setPdfFile(file)
+                          setError('')
+                        } catch (err) {
+                          setPdfFile(null)
+                          setError(err instanceof Error ? err.message : 'Berkas PDF tidak valid.')
+                          e.target.value = ''
+                        }
                       }}
                       style={{ display: 'none' }}
                     />
@@ -257,6 +290,43 @@ export default function TambahMateriPage() {
                 )}
               </div>
             )}
+
+            {/* Thumbnail materi */}
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Thumbnail materi (opsional)</label>
+              {thumbnailPreview ? (
+                <div className={styles.thumbnailPreviewCard}>
+                  <img src={thumbnailPreview} alt="Pratinjau thumbnail materi" />
+                  <div>
+                    <strong>{thumbnailFile?.name}</strong>
+                    <span>Gambar akan dipotong ke rasio 16:9</span>
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.removePdfBtn}
+                    onClick={() => {
+                      setThumbnailFile(null)
+                      setThumbnailPreview('')
+                    }}
+                    aria-label="Hapus thumbnail"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              ) : (
+                <label className={styles.thumbnailDropzone}>
+                  <ImageIcon size={26} className={styles.fotoDropzoneIcon} />
+                  <strong>Pilih gambar thumbnail</strong>
+                  <span>JPG, PNG, atau WebP • maksimal 5 MB</span>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={handleThumbnailSelect}
+                    style={{ display: 'none' }}
+                  />
+                </label>
+              )}
+            </div>
 
             {/* Foto Pendukung (Dropzone) */}
             <div className={styles.formGroup}>
@@ -311,28 +381,32 @@ export default function TambahMateriPage() {
 
           {/* Widget 2: Checklist */}
           <div className={styles.checklistCard}>
-            <span className={`${styles.cardEyebrow} ${styles.eyebrowGreen}`}>
-              CHECKLIST
-            </span>
+            <span className={`${styles.cardEyebrow} ${styles.eyebrowGreen}`}>CHECKLIST</span>
             <ul className={styles.checklistList}>
-              <li className={`${styles.checklistItem} ${isJudulFilled ? styles.checklistItemActive : ''}`}>
-                <Check 
-                  size={17} 
-                  className={`${styles.checkIcon} ${isJudulFilled ? styles.checkIconActive : ''}`} 
+              <li
+                className={`${styles.checklistItem} ${isJudulFilled ? styles.checklistItemActive : ''}`}
+              >
+                <Check
+                  size={17}
+                  className={`${styles.checkIcon} ${isJudulFilled ? styles.checkIconActive : ''}`}
                 />
                 <span>Judul materi</span>
               </li>
-              <li className={`${styles.checklistItem} ${isContentOrPdfFilled ? styles.checklistItemActive : ''}`}>
-                <Check 
-                  size={17} 
-                  className={`${styles.checkIcon} ${isContentOrPdfFilled ? styles.checkIconActive : ''}`} 
+              <li
+                className={`${styles.checklistItem} ${isContentOrPdfFilled ? styles.checklistItemActive : ''}`}
+              >
+                <Check
+                  size={17}
+                  className={`${styles.checkIcon} ${isContentOrPdfFilled ? styles.checkIconActive : ''}`}
                 />
                 <span>Konten atau PDF</span>
               </li>
-              <li className={`${styles.checklistItem} ${isMatakuliahFilled ? styles.checklistItemActive : ''}`}>
-                <Check 
-                  size={17} 
-                  className={`${styles.checkIcon} ${isMatakuliahFilled ? styles.checkIconActive : ''}`} 
+              <li
+                className={`${styles.checklistItem} ${isMatakuliahFilled ? styles.checklistItemActive : ''}`}
+              >
+                <Check
+                  size={17}
+                  className={`${styles.checkIcon} ${isMatakuliahFilled ? styles.checkIconActive : ''}`}
                 />
                 <span>Mata kuliah</span>
               </li>
@@ -341,11 +415,7 @@ export default function TambahMateriPage() {
 
           {/* Action Buttons: Batal & Simpan */}
           <div className={styles.actionButtonsRow}>
-            <button
-              type="button"
-              className={styles.btnBatal}
-              onClick={() => navigate('/materi')}
-            >
+            <button type="button" className={styles.btnBatal} onClick={() => navigate('/materi')}>
               Batal
             </button>
             <button
@@ -358,8 +428,19 @@ export default function TambahMateriPage() {
               <span>Simpan</span>
             </button>
           </div>
+          {createMutation.isPending && uploadProgress !== null && (
+            <div className={styles.uploadProgress} aria-live="polite">
+              <div className={styles.uploadProgressHeader}>
+                <span>{uploadProgress < 100 ? 'Mengunggah berkas' : 'Memproses berkas'}</span>
+                <span>{uploadProgress}%</span>
+              </div>
+              <div className={styles.uploadProgressTrack}>
+                <div className={styles.uploadProgressBar} style={{ width: `${uploadProgress}%` }} />
+              </div>
+            </div>
+          )}
         </aside>
       </div>
     </div>
-  );
+  )
 }

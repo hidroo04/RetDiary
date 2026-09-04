@@ -1,24 +1,19 @@
-import type { FormEvent } from 'react';
-import { AlertCircle, Clock3, Loader2, X } from 'lucide-react';
-import type {
-  CreateJadwalRequest,
-  HariKuliah,
-  Jadwal,
-  Matakuliah,
-} from '@/types/domain.types';
-import { DAYS, getDuration } from '../schedule.utils';
-import styles from '../Jadwal.module.css';
+import type { FormEvent } from 'react'
+import { AlertCircle, Clock3, Loader2, X } from 'lucide-react'
+import type { CreateJadwalRequest, HariKuliah, Jadwal, Matakuliah } from '@/types/domain.types'
+import { DAYS, getDuration } from '../schedule.utils'
+import styles from '../Jadwal.module.css'
 
 interface ScheduleFormModalProps {
-  isOpen: boolean;
-  editingSchedule: Jadwal | null;
-  courses: Matakuliah[];
-  form: CreateJadwalRequest;
-  formError: string;
-  isSaving: boolean;
-  onChange: (updates: Partial<CreateJadwalRequest>) => void;
-  onClose: () => void;
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  isOpen: boolean
+  editingSchedule: Jadwal | null
+  courses: Matakuliah[]
+  form: CreateJadwalRequest
+  formError: string
+  isSaving: boolean
+  onChange: (updates: Partial<CreateJadwalRequest>) => void
+  onClose: () => void
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void
 }
 
 export const ScheduleFormModal = ({
@@ -32,7 +27,7 @@ export const ScheduleFormModal = ({
   onClose,
   onSubmit,
 }: ScheduleFormModalProps) => {
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
   return (
     <div className={styles.modalBackdrop} onMouseDown={onClose}>
@@ -45,7 +40,9 @@ export const ScheduleFormModal = ({
       >
         <div className={styles.modalHeader}>
           <div>
-            <span className={styles.eyebrow}>{editingSchedule ? 'PERBARUI SESI' : 'SESI BARU'}</span>
+            <span className={styles.eyebrow}>
+              {editingSchedule ? 'PERBARUI SESI' : 'SESI BARU'}
+            </span>
             <h2 id="schedule-modal-title">{editingSchedule ? 'Edit jadwal' : 'Tambah jadwal'}</h2>
           </div>
           <button className={styles.closeButton} type="button" onClick={onClose} aria-label="Tutup">
@@ -67,9 +64,13 @@ export const ScheduleFormModal = ({
               onChange={(event) => onChange({ matakuliahId: event.target.value })}
               required
             >
-              <option value="" disabled>Pilih mata kuliah</option>
+              <option value="" disabled>
+                Pilih mata kuliah
+              </option>
               {courses.map((course) => (
-                <option key={course.id} value={course.id}>{course.kode} — {course.nama}</option>
+                <option key={course.id} value={course.id}>
+                  {course.kode} — {course.nama}
+                </option>
               ))}
             </select>
           </label>
@@ -80,7 +81,11 @@ export const ScheduleFormModal = ({
               value={form.hari}
               onChange={(event) => onChange({ hari: event.target.value as HariKuliah })}
             >
-              {DAYS.map((day) => <option key={day} value={day}>{day}</option>)}
+              {DAYS.map((day) => (
+                <option key={day} value={day}>
+                  {day}
+                </option>
+              ))}
             </select>
           </label>
 
@@ -122,7 +127,9 @@ export const ScheduleFormModal = ({
           </div>
 
           <div className={styles.modalActions}>
-            <button className={styles.secondaryButton} type="button" onClick={onClose}>Batal</button>
+            <button className={styles.secondaryButton} type="button" onClick={onClose}>
+              Batal
+            </button>
             <button className={styles.primaryButton} type="submit" disabled={isSaving}>
               {isSaving && <Loader2 className={styles.spinner} size={16} />}
               {editingSchedule ? 'Simpan perubahan' : 'Tambahkan jadwal'}
@@ -131,5 +138,5 @@ export const ScheduleFormModal = ({
         </form>
       </div>
     </div>
-  );
-};
+  )
+}

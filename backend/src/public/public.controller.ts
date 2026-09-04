@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query, UseInterceptors } from '@nestjs/common';
-import { CacheInterceptor, CacheKey } from '@nestjs/cache-manager';
+import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
 import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { PublicService } from './public.service';
 
@@ -12,6 +12,7 @@ export class PublicController {
   @Get('matakuliah')
   @UseInterceptors(CacheInterceptor)
   @CacheKey('public_matakuliah')
+  @CacheTTL(15_000)
   @ApiOperation({ summary: 'Daftar semua matakuliah (FR-01)' })
   getAllMatakuliah() {
     return this.publicService.getAllMatakuliah();
@@ -26,7 +27,9 @@ export class PublicController {
 
   // FR-05, FR-06: Daftar materi per matakuliah dengan pagination
   @Get('matakuliah/:id/materi')
-  @ApiOperation({ summary: 'Daftar materi dalam matakuliah dengan pagination (FR-05, FR-06)' })
+  @ApiOperation({
+    summary: 'Daftar materi dalam matakuliah dengan pagination (FR-05, FR-06)',
+  })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   getMateriByMatakuliah(
@@ -63,6 +66,7 @@ export class PublicController {
   @Get('jadwal')
   @UseInterceptors(CacheInterceptor)
   @CacheKey('public_jadwal')
+  @CacheTTL(15_000)
   @ApiOperation({ summary: 'Daftar jadwal perkuliahan publik (FR-32)' })
   getAllJadwal() {
     return this.publicService.getAllJadwal();

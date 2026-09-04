@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -7,12 +8,15 @@ import {
   Post,
   Put,
   Query,
-  UploadedFile,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import {
+  FileFieldsInterceptor,
+  FilesInterceptor,
+} from '@nestjs/platform-express';
+import type { FileFilterCallback } from 'multer';
 import {
   ApiBearerAuth,
   ApiConsumes,
@@ -30,6 +34,33 @@ interface DosenPayload {
   email: string;
   nama: string;
 }
+
+const materiUploadOptions = {
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (
+    _req: Express.Request,
+    file: Express.Multer.File,
+    callback: FileFilterCallback,
+  ) => {
+    if (file.fieldname === 'pdf' && file.mimetype !== 'application/pdf') {
+      return callback(new BadRequestException('Berkas harus berformat PDF.'));
+    }
+    if (
+      file.fieldname === 'thumbnail' &&
+      !['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype)
+    ) {
+      return callback(
+        new BadRequestException('Format thumbnail harus JPG, PNG, atau WebP.'),
+      );
+    }
+    callback(null, true);
+  },
+};
+
+type MateriUploadFiles = {
+  pdf?: Express.Multer.File[];
+  thumbnail?: Express.Multer.File[];
+};
 
 @ApiTags('Admin - Materi')
 @ApiBearerAuth()
@@ -52,10 +83,7 @@ export class MateriController {
   // Detail satu materi milik dosen
   @Get('materi/:id')
   @ApiOperation({ summary: 'Detail satu materi milik dosen' })
-  findOne(
-    @Param('id') id: string,
-    @CurrentUser() user: DosenPayload,
-  ) {
+  findOne(@Param('id') id: string, @CurrentUser() user: DosenPayload) {
     return this.materiService.findOneByDosen(id, user.id);
   }
 
@@ -71,29 +99,58 @@ export class MateriController {
 
   // FR-19, FR-20, FR-22, FR-23: Tambah materi
   @Post('materi')
-  @ApiOperation({ summary: 'Tambah materi baru dengan opsional PDF (FR-19, FR-20, FR-23)' })
+  @ApiOperation({
+    summary: 'Tambah materi baru dengan opsional PDF (FR-19, FR-20, FR-23)',
+  })
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('pdf'))
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: 'pdf', maxCount: 1 },
+        { name: 'thumbnail', maxCount: 1 },
+      ],
+      materiUploadOptions,
+    ),
+  )
   create(
     @CurrentUser() user: DosenPayload,
     @Body() dto: CreateMateriDto,
-    @UploadedFile() pdf?: Express.Multer.File,
+    @UploadedFiles() files?: MateriUploadFiles,
   ) {
-    return this.materiService.create(user.id, dto, pdf as any);
+    return this.materiService.create(
+      user.id,
+      dto,
+      files?.pdf?.[0] as any,
+      files?.thumbnail?.[0] as any,
+    );
   }
 
   // FR-19, FR-20: Update materi
   @Put('materi/:id')
   @ApiOperation({ summary: 'Update materi (FR-19, FR-20)' })
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('pdf'))
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: 'pdf', maxCount: 1 },
+        { name: 'thumbnail', maxCount: 1 },
+      ],
+      materiUploadOptions,
+    ),
+  )
   update(
     @Param('id') id: string,
     @CurrentUser() user: DosenPayload,
     @Body() dto: UpdateMateriDto,
-    @UploadedFile() pdf?: Express.Multer.File,
+    @UploadedFiles() files?: MateriUploadFiles,
   ) {
-    return this.materiService.update(id, user.id, dto, pdf as any);
+    return this.materiService.update(
+      id,
+      user.id,
+      dto,
+      files?.pdf?.[0] as any,
+      files?.thumbnail?.[0] as any,
+    );
   }
 
   // FR-18: Hapus materi

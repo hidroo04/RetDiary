@@ -1,16 +1,18 @@
-import { CalendarDays, Sparkles } from 'lucide-react';
-import type { BusiestDay } from '../schedule.utils';
-import styles from '../Jadwal.module.css';
+import { CalendarDays, Sparkles } from 'lucide-react'
+import type { BusiestDay } from '../schedule.utils'
+import styles from '../Jadwal.module.css'
 
 interface ScheduleSummaryProps {
-  total: number;
-  busiestDay: BusiestDay;
+  total: number
+  busiestDay: BusiestDay
 }
 
 export const ScheduleSummary = ({ total, busiestDay }: ScheduleSummaryProps) => (
   <section className={styles.summaryGrid} aria-label="Ringkasan jadwal">
     <div className={styles.summaryPrimary}>
-      <div className={styles.summaryIcon}><CalendarDays size={22} /></div>
+      <div className={styles.summaryIcon}>
+        <CalendarDays size={22} />
+      </div>
       <div>
         <span className={styles.summaryLabel}>Total pekan ini</span>
         <strong>{total} sesi kuliah</strong>
@@ -32,4 +34,4 @@ export const ScheduleSummary = ({ total, busiestDay }: ScheduleSummaryProps) => 
       <small>Jadwal berulang setiap pekan</small>
     </div>
   </section>
-);
+)

@@ -9,7 +9,13 @@ export class PublicService {
   async getAllMatakuliah() {
     return this.prisma.matakuliah.findMany({
       orderBy: { nama: 'asc' },
-      select: { id: true, nama: true, kode: true, deskripsi: true },
+      select: {
+        id: true,
+        nama: true,
+        kode: true,
+        deskripsi: true,
+        thumbnailUrl: true,
+      },
     });
   }
 
@@ -17,7 +23,13 @@ export class PublicService {
   async getMatakuliahById(id: string) {
     const mk = await this.prisma.matakuliah.findUnique({
       where: { id },
-      select: { id: true, nama: true, kode: true, deskripsi: true },
+      select: {
+        id: true,
+        nama: true,
+        kode: true,
+        deskripsi: true,
+        thumbnailUrl: true,
+      },
     });
     if (!mk) throw new NotFoundException('Matakuliah tidak ditemukan.');
     return mk;
@@ -38,9 +50,17 @@ export class PublicService {
         skip,
         take: limit,
         select: {
-          id: true, judul: true, urutan: true, createdAt: true,
-          konten: true, pdfUrl: true,
-          fotoMateri: { orderBy: { urutan: 'asc' }, select: { id: true, urlFoto: true } },
+          id: true,
+          judul: true,
+          urutan: true,
+          createdAt: true,
+          konten: true,
+          pdfUrl: true,
+          thumbnailUrl: true,
+          fotoMateri: {
+            orderBy: { urutan: 'asc' },
+            select: { id: true, urlFoto: true },
+          },
         },
       }),
     ]);
@@ -62,9 +82,20 @@ export class PublicService {
     const materi = await this.prisma.materi.findUnique({
       where: { id },
       select: {
-        id: true, judul: true, konten: true, pdfUrl: true, urutan: true, createdAt: true,
-        matakuliah: { select: { id: true, nama: true } },
-        fotoMateri: { orderBy: { urutan: 'asc' }, select: { id: true, urlFoto: true, urutan: true } },
+        id: true,
+        judul: true,
+        konten: true,
+        pdfUrl: true,
+        thumbnailUrl: true,
+        urutan: true,
+        createdAt: true,
+        matakuliah: {
+          select: { id: true, nama: true, kode: true, thumbnailUrl: true },
+        },
+        fotoMateri: {
+          orderBy: { urutan: 'asc' },
+          select: { id: true, urlFoto: true, urutan: true },
+        },
       },
     });
     if (!materi) throw new NotFoundException('Materi tidak ditemukan.');
@@ -73,11 +104,16 @@ export class PublicService {
 
   // FR-28: Rekomendasi materi berikutnya berdasarkan urutan
   async getRekomendasiMateri(materiId: string) {
-    const materi = await this.prisma.materi.findUnique({ where: { id: materiId } });
+    const materi = await this.prisma.materi.findUnique({
+      where: { id: materiId },
+    });
     if (!materi) throw new NotFoundException('Materi tidak ditemukan.');
 
     const next = await this.prisma.materi.findFirst({
-      where: { matakuliahId: materi.matakuliahId, urutan: { gt: materi.urutan } },
+      where: {
+        matakuliahId: materi.matakuliahId,
+        urutan: { gt: materi.urutan },
+      },
       orderBy: { urutan: 'asc' },
       select: { id: true, judul: true, urutan: true },
     });
@@ -102,13 +138,22 @@ export class PublicService {
             { kode: { contains: keyword, mode: 'insensitive' } },
           ],
         },
-        select: { id: true, nama: true, kode: true, deskripsi: true },
+        select: {
+          id: true,
+          nama: true,
+          kode: true,
+          deskripsi: true,
+          thumbnailUrl: true,
+        },
         take: 10,
       }),
       this.prisma.materi.findMany({
         where: { judul: { contains: keyword, mode: 'insensitive' } },
         select: {
-          id: true, judul: true, urutan: true,
+          id: true,
+          judul: true,
+          urutan: true,
+          thumbnailUrl: true,
           matakuliah: { select: { id: true, nama: true } },
         },
         take: 10,

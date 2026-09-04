@@ -115,7 +115,14 @@ export function ParticleField() {
           }
         }
 
-        const glow = context.createRadialGradient(particle.x, particle.y, 0, particle.x, particle.y, particle.radius * 4)
+        const glow = context.createRadialGradient(
+          particle.x,
+          particle.y,
+          0,
+          particle.x,
+          particle.y,
+          particle.radius * 4,
+        )
         glow.addColorStop(0, 'rgba(255,255,255,.95)')
         glow.addColorStop(0.25, 'rgba(110,231,183,.9)')
         glow.addColorStop(1, 'rgba(16,185,129,0)')
@@ -138,7 +145,9 @@ export function ParticleField() {
       pointer.y = event.clientY - rect.top
       pointer.active = true
     }
-    const onPointerLeave = () => { pointer.active = false }
+    const onPointerLeave = () => {
+      pointer.active = false
+    }
     const observer = new ResizeObserver(reset)
     observer.observe(canvas)
     canvas.addEventListener('pointermove', onPointerMove)

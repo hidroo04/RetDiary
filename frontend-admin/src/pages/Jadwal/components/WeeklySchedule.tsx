@@ -1,15 +1,15 @@
-import { Clock3 } from 'lucide-react';
-import type { HariKuliah, Jadwal } from '@/types/domain.types';
-import { DAYS, type SchedulesByDay } from '../schedule.utils';
-import { DayColumn } from './DayColumn';
-import styles from '../Jadwal.module.css';
+import { Clock3 } from 'lucide-react'
+import type { HariKuliah, Jadwal } from '@/types/domain.types'
+import { DAYS, type SchedulesByDay } from '../schedule.utils'
+import { DayColumn } from './DayColumn'
+import styles from '../Jadwal.module.css'
 
 interface WeeklyScheduleProps {
-  schedulesByDay: SchedulesByDay;
-  hasCourses: boolean;
-  onCreate: (day: HariKuliah) => void;
-  onEdit: (schedule: Jadwal) => void;
-  onDelete: (schedule: Jadwal) => void;
+  schedulesByDay: SchedulesByDay
+  hasCourses: boolean
+  onCreate: (day: HariKuliah) => void
+  onEdit: (schedule: Jadwal) => void
+  onDelete: (schedule: Jadwal) => void
 }
 
 export const WeeklySchedule = ({
@@ -45,4 +45,4 @@ export const WeeklySchedule = ({
       ))}
     </div>
   </section>
-);
+)

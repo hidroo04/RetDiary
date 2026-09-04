@@ -10,5 +10,18 @@ import AboutPage from '@/pages/About/About'
 import NotFoundPage from '@/pages/NotFound/NotFound'
 
 export default function App() {
-  return <Routes><Route element={<PublicLayout />}><Route index element={<HomePage />} /><Route path="matakuliah" element={<CoursesPage />} /><Route path="matakuliah/:id" element={<CourseDetailPage />} /><Route path="materi/:id" element={<MaterialDetailPage />} /><Route path="jadwal" element={<SchedulePage />} /><Route path="search" element={<SearchPage />} /><Route path="tentang" element={<AboutPage />} /><Route path="*" element={<NotFoundPage />} /></Route></Routes>
+  return (
+    <Routes>
+      <Route element={<PublicLayout />}>
+        <Route index element={<HomePage />} />
+        <Route path="matakuliah" element={<CoursesPage />} />
+        <Route path="matakuliah/:id" element={<CourseDetailPage />} />
+        <Route path="materi/:id" element={<MaterialDetailPage />} />
+        <Route path="jadwal" element={<SchedulePage />} />
+        <Route path="search" element={<SearchPage />} />
+        <Route path="tentang" element={<AboutPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
+    </Routes>
+  )
 }

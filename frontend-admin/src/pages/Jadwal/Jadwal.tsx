@@ -1,12 +1,12 @@
-import { AlertCircle, Loader2, Plus } from 'lucide-react';
-import { ScheduleFormModal } from './components/ScheduleFormModal';
-import { ScheduleSummary } from './components/ScheduleSummary';
-import { WeeklySchedule } from './components/WeeklySchedule';
-import { useScheduleManagement } from './hooks/useScheduleManagement';
-import styles from './Jadwal.module.css';
+import { AlertCircle, Loader2, Plus } from 'lucide-react'
+import { ScheduleFormModal } from './components/ScheduleFormModal'
+import { ScheduleSummary } from './components/ScheduleSummary'
+import { WeeklySchedule } from './components/WeeklySchedule'
+import { useScheduleManagement } from './hooks/useScheduleManagement'
+import styles from './Jadwal.module.css'
 
 export default function JadwalPage() {
-  const schedule = useScheduleManagement();
+  const schedule = useScheduleManagement()
 
   if (schedule.isLoading) {
     return (
@@ -14,7 +14,7 @@ export default function JadwalPage() {
         <Loader2 className={styles.spinner} size={42} />
         <span>Menyiapkan jadwal mingguan...</span>
       </div>
-    );
+    )
   }
 
   return (
@@ -72,5 +72,5 @@ export default function JadwalPage() {
         onSubmit={schedule.submitForm}
       />
     </div>
-  );
+  )
 }

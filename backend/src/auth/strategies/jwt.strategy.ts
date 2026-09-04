@@ -29,7 +29,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
 
     if (!dosen) {
-      throw new UnauthorizedException('Token tidak valid atau telah kedaluwarsa.');
+      throw new UnauthorizedException(
+        'Token tidak valid atau telah kedaluwarsa.',
+      );
     }
 
     return dosen;

@@ -1,29 +1,29 @@
-import { useState, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
-import { 
-  Plus, 
-  Bell, 
-  Search, 
-  FileText, 
-  FileDown, 
-  Trash2, 
-  Edit3, 
-  Eye, 
-  X, 
-  Loader2, 
-  BookOpen, 
+import { useEffect, useState, useMemo } from 'react'
+import { useAsyncMutation, useAsyncQuery } from '@/hooks/useAsync'
+import { useNavigate } from 'react-router-dom'
+import {
+  Plus,
+  Bell,
+  Search,
+  FileText,
+  FileDown,
+  Trash2,
+  Edit3,
+  Eye,
+  X,
+  Loader2,
+  BookOpen,
   Image as ImageIcon,
   ChevronLeft,
   ChevronRight,
   LayoutGrid,
   List as ListIcon,
-  Upload
-} from 'lucide-react';
-import { materiApi } from '@/api/materi.api';
-import { matakuliahApi } from '@/api/matakuliah.api';
-import type { Materi, Matakuliah, FotoMateri } from '@/types/domain.types';
-import styles from './Materi.module.css';
+  Upload,
+} from 'lucide-react'
+import { materiApi, validatePdfFile, validateThumbnailFile } from '@/api/materi.api'
+import { matakuliahApi } from '@/api/matakuliah.api'
+import type { Materi, Matakuliah, FotoMateri } from '@/types/domain.types'
+import styles from './Materi.module.css'
 
 // ─── Course Code Colors Palette ──────────────────────────────────────────
 const BADGE_COLOR_CLASSES = [
@@ -31,105 +31,105 @@ const BADGE_COLOR_CLASSES = [
   styles.badgeEmerald,
   styles.badgeBlue,
   styles.badgeAmber,
-];
+]
 
 export default function MateriPage() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const navigate = useNavigate()
 
   // ─── Filter & View States ──────────────────────────────────────────────
-  const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [searchQuery, setSearchQuery] = useState('')
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
 
   // ─── Modals State ──────────────────────────────────────────────────────
-  const [previewMateri, setPreviewMateri] = useState<Materi | null>(null);
-  const [editingMateri, setEditingMateri] = useState<Materi | null>(null);
-  const [deletingMateri, setDeletingMateri] = useState<Materi | null>(null);
-  const [activeGalleryZoom, setActiveGalleryZoom] = useState<string | null>(null);
+  const [previewMateri, setPreviewMateri] = useState<Materi | null>(null)
+  const [editingMateri, setEditingMateri] = useState<Materi | null>(null)
+  const [deletingMateri, setDeletingMateri] = useState<Materi | null>(null)
+  const [activeGalleryZoom, setActiveGalleryZoom] = useState<string | null>(null)
 
   // ─── Form State (Edit) ─────────────────────────────────────────────────
-  const [formMatakuliahId, setFormMatakuliahId] = useState('');
-  const [formJudul, setFormJudul] = useState('');
-  const [formUrutan, setFormUrutan] = useState<number>(1);
-  const [formKonten, setFormKonten] = useState('');
-  const [formPdfFile, setFormPdfFile] = useState<File | null>(null);
-  const [formNewPhotos, setFormNewPhotos] = useState<File[]>([]);
-  const [formNewPhotoPreviews, setFormNewPhotoPreviews] = useState<string[]>([]);
-  const [existingPhotos, setExistingPhotos] = useState<FotoMateri[]>([]);
-  const [formError, setFormError] = useState('');
+  const [formMatakuliahId, setFormMatakuliahId] = useState('')
+  const [formJudul, setFormJudul] = useState('')
+  const [formUrutan, setFormUrutan] = useState<number>(1)
+  const [formKonten, setFormKonten] = useState('')
+  const [formPdfFile, setFormPdfFile] = useState<File | null>(null)
+  const [formThumbnailFile, setFormThumbnailFile] = useState<File | null>(null)
+  const [formThumbnailPreview, setFormThumbnailPreview] = useState('')
+  const [formNewPhotos, setFormNewPhotos] = useState<File[]>([])
+  const [formNewPhotoPreviews, setFormNewPhotoPreviews] = useState<string[]>([])
+  const [existingPhotos, setExistingPhotos] = useState<FotoMateri[]>([])
+  const [formError, setFormError] = useState('')
+  const [formUploadProgress, setFormUploadProgress] = useState<number | null>(null)
 
   // ─── Queries ───────────────────────────────────────────────────────────
-  const { data: allMateri = [], isLoading: isLoadingMateri } = useQuery({
-    queryKey: ['materi-all'],
-    queryFn: () => materiApi.getAll(),
-  });
+  const {
+    data: allMateri = [],
+    isLoading: isLoadingMateri,
+    refetch: refetchMateri,
+  } = useAsyncQuery('admin:materials', () => materiApi.getAll())
 
-  const { data: matakuliahList = [], isLoading: isLoadingMK } = useQuery({
-    queryKey: ['matakuliah'],
-    queryFn: matakuliahApi.getAll,
-  });
+  const { data: matakuliahList = [], isLoading: isLoadingMK } = useAsyncQuery(
+    'admin:courses',
+    matakuliahApi.getAll,
+  )
 
   // Map of Course Id -> Course details for quick lookup
   const matakuliahMap = useMemo(() => {
-    const map = new Map<string, Matakuliah>();
-    matakuliahList.forEach((mk) => map.set(mk.id, mk));
-    return map;
-  }, [matakuliahList]);
+    const map = new Map<string, Matakuliah>()
+    matakuliahList.forEach((mk) => map.set(mk.id, mk))
+    return map
+  }, [matakuliahList])
 
   // ─── Filtered Materials ────────────────────────────────────────────────
   const filteredMaterials = useMemo(() => {
-    if (!searchQuery.trim()) return allMateri;
-    const q = searchQuery.toLowerCase();
+    if (!searchQuery.trim()) return allMateri
+    const q = searchQuery.toLowerCase()
     return allMateri.filter((m) => {
-      const courseName = m.matakuliah?.nama?.toLowerCase() || '';
-      const courseCode = m.matakuliah?.kode?.toLowerCase() || '';
-      const title = m.judul?.toLowerCase() || '';
-      const content = m.konten?.toLowerCase() || '';
+      const courseName = m.matakuliah?.nama?.toLowerCase() || ''
+      const courseCode = m.matakuliah?.kode?.toLowerCase() || ''
+      const title = m.judul?.toLowerCase() || ''
+      const content = m.konten?.toLowerCase() || ''
       return (
-        title.includes(q) ||
-        content.includes(q) ||
-        courseName.includes(q) ||
-        courseCode.includes(q)
-      );
-    });
-  }, [allMateri, searchQuery]);
+        title.includes(q) || content.includes(q) || courseName.includes(q) || courseCode.includes(q)
+      )
+    })
+  }, [allMateri, searchQuery])
 
   // ─── Pagination Calculations (10 items per page) ──────────────────────
-  const totalItems = filteredMaterials.length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
-  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+  const totalItems = filteredMaterials.length
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage))
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages)
 
-  const startIndex = (safeCurrentPage - 1) * itemsPerPage;
-  const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+  const startIndex = (safeCurrentPage - 1) * itemsPerPage
+  const endIndex = Math.min(startIndex + itemsPerPage, totalItems)
   const pagedMaterials = useMemo(() => {
-    return filteredMaterials.slice(startIndex, endIndex);
-  }, [filteredMaterials, startIndex, endIndex]);
+    return filteredMaterials.slice(startIndex, endIndex)
+  }, [filteredMaterials, startIndex, endIndex])
 
   // ─── Group Paged Materials by Course ───────────────────────────────────
   const groupedPagedMaterials = useMemo(() => {
     const groups: {
-      courseId: string;
-      courseKode: string;
-      courseNama: string;
-      colorClass: string;
-      materials: Materi[];
-    }[] = [];
+      courseId: string
+      courseKode: string
+      courseNama: string
+      colorClass: string
+      materials: Materi[]
+    }[] = []
 
-    const groupMap = new Map<string, typeof groups[0]>();
+    const groupMap = new Map<string, (typeof groups)[0]>()
 
     pagedMaterials.forEach((materi) => {
-      const mkId = materi.matakuliahId || 'unknown';
-      const mk = matakuliahMap.get(mkId) || materi.matakuliah;
-      const mkKode = mk?.kode || 'MK';
-      const mkNama = mk?.nama || 'Mata Kuliah';
+      const mkId = materi.matakuliahId || 'unknown'
+      const mk = matakuliahMap.get(mkId) || materi.matakuliah
+      const mkKode = mk?.kode || 'MK'
+      const mkNama = mk?.nama || 'Mata Kuliah'
 
       if (!groupMap.has(mkId)) {
         // Assign color based on index or hash
-        const colorIdx = Math.abs(
-          mkKode.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)
-        ) % BADGE_COLOR_CLASSES.length;
+        const colorIdx =
+          Math.abs(mkKode.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)) %
+          BADGE_COLOR_CLASSES.length
 
         const newGroup = {
           courseId: mkId,
@@ -137,57 +137,101 @@ export default function MateriPage() {
           courseNama: mkNama,
           colorClass: BADGE_COLOR_CLASSES[colorIdx],
           materials: [],
-        };
-        groupMap.set(mkId, newGroup);
-        groups.push(newGroup);
+        }
+        groupMap.set(mkId, newGroup)
+        groups.push(newGroup)
       }
 
-      groupMap.get(mkId)!.materials.push(materi);
-    });
+      groupMap.get(mkId)!.materials.push(materi)
+    })
 
-    return groups;
-  }, [pagedMaterials, matakuliahMap]);
+    return groups
+  }, [pagedMaterials, matakuliahMap])
 
   // ─── Setup Edit Form ───────────────────────────────────────────────────
   const openEditModal = (materi: Materi) => {
-    setEditingMateri(materi);
-    setFormMatakuliahId(materi.matakuliahId);
-    setFormJudul(materi.judul);
-    setFormUrutan(materi.urutan || 1);
-    setFormKonten(materi.konten || '');
-    setFormPdfFile(null);
-    setFormNewPhotos([]);
-    setFormNewPhotoPreviews([]);
-    setExistingPhotos(materi.fotoMateri || []);
-    setFormError('');
-  };
+    setEditingMateri(materi)
+    setFormMatakuliahId(materi.matakuliahId)
+    setFormJudul(materi.judul)
+    setFormUrutan(materi.urutan || 1)
+    setFormKonten(materi.konten || '')
+    setFormPdfFile(null)
+    setFormThumbnailFile(null)
+    setFormThumbnailPreview(materi.thumbnailUrl || '')
+    setFormNewPhotos([])
+    setFormNewPhotoPreviews([])
+    setExistingPhotos(materi.fotoMateri || [])
+    setFormError('')
+    setFormUploadProgress(null)
+  }
+
+  useEffect(
+    () => () => {
+      if (formThumbnailPreview.startsWith('blob:')) {
+        URL.revokeObjectURL(formThumbnailPreview)
+      }
+    },
+    [formThumbnailPreview],
+  )
+
+  const handlePdfSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      validatePdfFile(file)
+      setFormPdfFile(file)
+      setFormError('')
+    } catch (err) {
+      setFormPdfFile(null)
+      setFormError(err instanceof Error ? err.message : 'Berkas PDF tidak valid.')
+      e.target.value = ''
+    }
+  }
+
+  const handleThumbnailSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      validateThumbnailFile(file)
+      setFormThumbnailFile(file)
+      setFormThumbnailPreview(URL.createObjectURL(file))
+      setFormError('')
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : 'Thumbnail tidak valid.')
+      e.target.value = ''
+    }
+  }
 
   // ─── Handle New Photos Selection ───────────────────────────────────────
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const files = Array.from(e.target.files);
-      const newFiles = [...formNewPhotos, ...files];
-      setFormNewPhotos(newFiles);
+      const files = Array.from(e.target.files)
+      const newFiles = [...formNewPhotos, ...files]
+      setFormNewPhotos(newFiles)
 
-      const newPreviews = files.map((file) => URL.createObjectURL(file));
-      setFormNewPhotoPreviews((prev) => [...prev, ...newPreviews]);
+      const newPreviews = files.map((file) => URL.createObjectURL(file))
+      setFormNewPhotoPreviews((prev) => [...prev, ...newPreviews])
     }
-  };
+  }
 
   const removeNewPhoto = (index: number) => {
-    setFormNewPhotos((prev) => prev.filter((_, i) => i !== index));
+    setFormNewPhotos((prev) => prev.filter((_, i) => i !== index))
     setFormNewPhotoPreviews((prev) => {
-      URL.revokeObjectURL(prev[index]);
-      return prev.filter((_, i) => i !== index);
-    });
-  };
+      URL.revokeObjectURL(prev[index])
+      return prev.filter((_, i) => i !== index)
+    })
+  }
 
   // ─── Mutations ─────────────────────────────────────────────────────────
-  const updateMutation = useMutation({
+  const updateMutation = useAsyncMutation({
     mutationFn: async () => {
-      if (!editingMateri) return;
-      if (!formMatakuliahId) throw new Error('Silakan pilih mata kuliah.');
-      if (!formJudul.trim()) throw new Error('Judul materi tidak boleh kosong.');
+      setFormError('')
+      if (!editingMateri) return
+      if (!formMatakuliahId) throw new Error('Silakan pilih mata kuliah.')
+      if (!formJudul.trim()) throw new Error('Judul materi tidak boleh kosong.')
+      if (formPdfFile) validatePdfFile(formPdfFile)
+      if (formThumbnailFile) validateThumbnailFile(formThumbnailFile)
+      setFormUploadProgress(formPdfFile || formThumbnailFile ? 0 : null)
 
       const updated = await materiApi.update(
         editingMateri.id,
@@ -197,94 +241,98 @@ export default function MateriPage() {
           konten: formKonten.trim(),
           urutan: Number(formUrutan) || 1,
         },
-        formPdfFile || undefined
-      );
+        formPdfFile || undefined,
+        formThumbnailFile || undefined,
+        formPdfFile || formThumbnailFile ? setFormUploadProgress : undefined,
+      )
+      setFormUploadProgress(null)
 
       // Upload newly added photos if any
       if (formNewPhotos.length > 0) {
-        await materiApi.uploadFoto(editingMateri.id, formNewPhotos);
+        await materiApi.uploadFoto(editingMateri.id, formNewPhotos)
       }
 
-      return updated;
+      return updated
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['materi-all'] });
-      setEditingMateri(null);
+      refetchMateri()
+      setEditingMateri(null)
     },
     onError: (err: any) => {
-      setFormError(err?.response?.data?.message || err?.message || 'Gagal mengubah materi.');
+      setFormUploadProgress(null)
+      setFormError(err?.response?.data?.message || err?.message || 'Gagal mengubah materi.')
     },
-  });
+  })
 
-  const deleteMutation = useMutation({
+  const deleteMutation = useAsyncMutation({
     mutationFn: (id: string) => materiApi.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['materi-all'] });
-      setDeletingMateri(null);
+      refetchMateri()
+      setDeletingMateri(null)
     },
-  });
+  })
 
-  const deletePhotoMutation = useMutation({
+  const deletePhotoMutation = useAsyncMutation({
     mutationFn: (fotoId: string) => materiApi.deleteFoto(fotoId),
     onSuccess: (_, fotoId) => {
-      setExistingPhotos((prev) => prev.filter((p) => p.id !== fotoId));
-      queryClient.invalidateQueries({ queryKey: ['materi-all'] });
+      setExistingPhotos((prev) => prev.filter((p) => p.id !== fotoId))
+      refetchMateri()
     },
-  });
+  })
 
   // ─── Format Subtitle Helper ────────────────────────────────────────────
   const getMaterialTypeSubtitle = (m: Materi) => {
-    const hasPdf = !!m.pdfUrl;
-    const hasPhotos = !!m.fotoMateri && m.fotoMateri.length > 0;
+    const hasPdf = !!m.pdfUrl
+    const hasPhotos = !!m.fotoMateri && m.fotoMateri.length > 0
     const dateStr = new Date(m.createdAt).toLocaleDateString('id-ID', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',
-    });
+    })
 
-    let typeStr = 'Modul & catatan';
-    if (hasPdf && hasPhotos) typeStr = 'Modul & gambar';
-    else if (hasPdf) typeStr = 'Modul PDF';
-    else if (hasPhotos) typeStr = 'Galeri foto';
-    else if (m.konten) typeStr = 'Instruksi materi';
+    let typeStr = 'Modul & catatan'
+    if (hasPdf && hasPhotos) typeStr = 'Modul & gambar'
+    else if (hasPdf) typeStr = 'Modul PDF'
+    else if (hasPhotos) typeStr = 'Galeri foto'
+    else if (m.konten) typeStr = 'Instruksi materi'
 
-    return `${typeStr} • ${dateStr}`;
-  };
+    return `${typeStr} • ${dateStr}`
+  }
 
   // ─── Get File Icon Helper ──────────────────────────────────────────────
   const renderMaterialIcon = (m: Materi) => {
-    const hasPdf = !!m.pdfUrl;
-    const hasPhotos = !!m.fotoMateri && m.fotoMateri.length > 0;
+    const hasPdf = !!m.pdfUrl
+    const hasPhotos = !!m.fotoMateri && m.fotoMateri.length > 0
 
     if (hasPdf && hasPhotos) {
       return (
         <div className={`${styles.iconBox} ${styles.iconBoxPurple}`}>
           <FileText size={20} />
         </div>
-      );
+      )
     }
     if (hasPdf) {
       return (
         <div className={`${styles.iconBox} ${styles.iconBoxPurple}`}>
           <FileDown size={20} />
         </div>
-      );
+      )
     }
     if (hasPhotos) {
       return (
         <div className={`${styles.iconBox} ${styles.iconBoxGreen}`}>
           <ImageIcon size={20} />
         </div>
-      );
+      )
     }
     return (
       <div className={`${styles.iconBox} ${styles.iconBoxViolet}`}>
         <BookOpen size={20} />
       </div>
-    );
-  };
+    )
+  }
 
-  const isLoading = isLoadingMateri || isLoadingMK;
+  const isLoading = isLoadingMateri || isLoadingMK
 
   return (
     <div className={styles.container}>
@@ -299,17 +347,17 @@ export default function MateriPage() {
         </div>
 
         <div className={styles.headerActions}>
-          <button 
-            type="button" 
-            className={styles.notifBtn} 
+          <button
+            type="button"
+            className={styles.notifBtn}
             title="Pemberitahuan"
             aria-label="Pemberitahuan"
           >
             <Bell size={19} />
           </button>
-          
-          <button 
-            type="button" 
+
+          <button
+            type="button"
             className={styles.addBtn}
             onClick={() => navigate('/materi/tambah')}
           >
@@ -324,7 +372,9 @@ export default function MateriPage() {
         <div className={styles.heroContent}>
           <span className={styles.heroEyebrow}>PERPUSTAKAAN PEMBELAJARAN</span>
           <h2 className={styles.heroHeading}>
-            Semua materi, tersusun<br />menurut kelasnya.
+            Semua materi, tersusun
+            <br />
+            menurut kelasnya.
           </h2>
           <p className={styles.heroSub}>
             Temukan, tinjau, dan kelola bahan ajar dari setiap mata kuliah yang Anda ampu.
@@ -347,9 +397,7 @@ export default function MateriPage() {
       <div className={styles.sectionHeader}>
         <div className={styles.sectionTitleGroup}>
           <span className={styles.sectionEyebrow}>SELURUH MATERI</span>
-          <h3 className={styles.sectionCount}>
-            {filteredMaterials.length} bahan ajar ditemukan
-          </h3>
+          <h3 className={styles.sectionCount}>{filteredMaterials.length} bahan ajar ditemukan</h3>
         </div>
 
         <div className={styles.viewSwitchers}>
@@ -381,8 +429,8 @@ export default function MateriPage() {
           type="text"
           value={searchQuery}
           onChange={(e) => {
-            setSearchQuery(e.target.value);
-            setCurrentPage(1);
+            setSearchQuery(e.target.value)
+            setCurrentPage(1)
           }}
           placeholder="Cari materi atau mata kuliah..."
           className={styles.searchInput}
@@ -417,7 +465,7 @@ export default function MateriPage() {
             {searchQuery ? 'Tidak ada materi yang sesuai' : 'Belum ada materi pembelajaran'}
           </h4>
           <p className={styles.emptyDesc}>
-            {searchQuery 
+            {searchQuery
               ? `Tidak ditemukan materi dengan kata kunci "${searchQuery}". Coba kata kunci lain.`
               : 'Mulai unggah bahan ajar, modul PDF, dan foto pendukung untuk mahasiswa Anda.'}
           </p>
@@ -454,16 +502,26 @@ export default function MateriPage() {
               </div>
 
               {/* Materials Items */}
-              <div className={viewMode === 'grid' ? styles.materialsGrid : styles.materialsListMode}>
+              <div
+                className={viewMode === 'grid' ? styles.materialsGrid : styles.materialsListMode}
+              >
                 {group.materials.map((materi) => (
                   <div key={materi.id} className={styles.materialCard}>
                     {/* Left: Icon & Details */}
-                    <div 
+                    <div
                       className={styles.materialLeft}
                       onClick={() => setPreviewMateri(materi)}
                       style={{ cursor: 'pointer' }}
                     >
-                      {renderMaterialIcon(materi)}
+                      {materi.thumbnailUrl ? (
+                        <img
+                          className={styles.materialThumbnail}
+                          src={materi.thumbnailUrl}
+                          alt=""
+                        />
+                      ) : (
+                        renderMaterialIcon(materi)
+                      )}
                       <div className={styles.materialDetails}>
                         <h5 className={styles.materialTitle} title={materi.judul}>
                           {materi.judul}
@@ -476,9 +534,7 @@ export default function MateriPage() {
 
                     {/* Right: Status & Actions */}
                     <div className={styles.materialRight}>
-                      <span className={`${styles.statusBadge} ${styles.statusTerbit}`}>
-                        Terbit
-                      </span>
+                      <span className={`${styles.statusBadge} ${styles.statusTerbit}`}>Terbit</span>
 
                       <div className={styles.actionRow}>
                         {/* Preview */}
@@ -598,8 +654,8 @@ export default function MateriPage() {
                   Perbarui judul, berkas PDF, konten tulisan, atau kelola galeri foto.
                 </span>
               </div>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className={styles.closeModalBtn}
                 onClick={() => setEditingMateri(null)}
               >
@@ -609,13 +665,21 @@ export default function MateriPage() {
 
             <form
               onSubmit={(e) => {
-                e.preventDefault();
-                updateMutation.mutate();
+                e.preventDefault()
+                updateMutation.mutate()
               }}
             >
               <div className={styles.modalBody}>
                 {formError && (
-                  <div style={{ padding: '0.75rem 1rem', background: '#fee2e2', color: '#dc2626', borderRadius: '12px', fontSize: '0.84rem' }}>
+                  <div
+                    style={{
+                      padding: '0.75rem 1rem',
+                      background: '#fee2e2',
+                      color: '#dc2626',
+                      borderRadius: '12px',
+                      fontSize: '0.84rem',
+                    }}
+                  >
                     {formError}
                   </div>
                 )}
@@ -670,7 +734,9 @@ export default function MateriPage() {
                     <div className={styles.filePreviewCard}>
                       <div className={styles.filePreviewInfo}>
                         <FileDown size={20} color="#7c3aed" />
-                        <span className={styles.filePreviewName}>Ganti dengan: {formPdfFile.name}</span>
+                        <span className={styles.filePreviewName}>
+                          Ganti dengan: {formPdfFile.name}
+                        </span>
                       </div>
                       <button
                         type="button"
@@ -686,17 +752,19 @@ export default function MateriPage() {
                         <FileText size={20} color="#7c3aed" />
                         <span className={styles.filePreviewName}>Berkas PDF aktif terlampir</span>
                       </div>
-                      <label 
-                        className={styles.btnSecondary} 
-                        style={{ padding: '0.4rem 0.85rem', fontSize: '0.76rem', cursor: 'pointer' }}
+                      <label
+                        className={styles.btnSecondary}
+                        style={{
+                          padding: '0.4rem 0.85rem',
+                          fontSize: '0.76rem',
+                          cursor: 'pointer',
+                        }}
                       >
                         Ganti PDF
                         <input
                           type="file"
                           accept="application/pdf"
-                          onChange={(e) => {
-                            if (e.target.files?.[0]) setFormPdfFile(e.target.files[0]);
-                          }}
+                          onChange={handlePdfSelect}
                           style={{ display: 'none' }}
                         />
                       </label>
@@ -704,15 +772,55 @@ export default function MateriPage() {
                   ) : (
                     <label className={styles.dropzone}>
                       <Upload size={22} color="#8b5cf6" />
-                      <span style={{ fontSize: '0.84rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                      <span
+                        style={{
+                          fontSize: '0.84rem',
+                          fontWeight: 600,
+                          color: 'var(--color-text-primary)',
+                        }}
+                      >
                         Unggah berkas PDF baru
                       </span>
                       <input
                         type="file"
                         accept="application/pdf"
-                        onChange={(e) => {
-                          if (e.target.files?.[0]) setFormPdfFile(e.target.files[0]);
-                        }}
+                        onChange={handlePdfSelect}
+                        style={{ display: 'none' }}
+                      />
+                    </label>
+                  )}
+                </div>
+
+                {/* Thumbnail materi */}
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Thumbnail materi</label>
+                  {formThumbnailPreview ? (
+                    <div className={styles.thumbnailEditor}>
+                      <img src={formThumbnailPreview} alt="Pratinjau thumbnail materi" />
+                      <div>
+                        <strong>
+                          {formThumbnailFile ? formThumbnailFile.name : 'Thumbnail aktif'}
+                        </strong>
+                        <span>Rasio tampilan 16:9</span>
+                      </div>
+                      <label className={styles.btnSecondary}>
+                        Ganti
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp"
+                          onChange={handleThumbnailSelect}
+                          style={{ display: 'none' }}
+                        />
+                      </label>
+                    </div>
+                  ) : (
+                    <label className={styles.dropzone}>
+                      <ImageIcon size={22} color="#059669" />
+                      <span>Unggah thumbnail JPG, PNG, atau WebP (maks. 5 MB)</span>
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        onChange={handleThumbnailSelect}
                         style={{ display: 'none' }}
                       />
                     </label>
@@ -731,8 +839,10 @@ export default function MateriPage() {
 
                 {/* Kelola Foto Eksisting & Baru */}
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Galeri Foto Materi ({existingPhotos.length} foto tersimpan)</label>
-                  
+                  <label className={styles.formLabel}>
+                    Galeri Foto Materi ({existingPhotos.length} foto tersimpan)
+                  </label>
+
                   {existingPhotos.length > 0 && (
                     <div className={styles.photoGrid}>
                       {existingPhotos.map((foto) => (
@@ -753,7 +863,13 @@ export default function MateriPage() {
 
                   <label className={styles.dropzone} style={{ marginTop: '0.65rem' }}>
                     <ImageIcon size={22} color="#10b981" />
-                    <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                    <span
+                      style={{
+                        fontSize: '0.82rem',
+                        fontWeight: 600,
+                        color: 'var(--color-text-primary)',
+                      }}
+                    >
                       Tambah Foto Tambahan
                     </span>
                     <input
@@ -784,6 +900,23 @@ export default function MateriPage() {
                 </div>
               </div>
 
+              {updateMutation.isPending && formUploadProgress !== null && (
+                <div className={styles.uploadProgress} aria-live="polite">
+                  <div className={styles.uploadProgressHeader}>
+                    <span>
+                      {formUploadProgress < 100 ? 'Mengunggah berkas' : 'Memproses berkas'}
+                    </span>
+                    <span>{formUploadProgress}%</span>
+                  </div>
+                  <div className={styles.uploadProgressTrack}>
+                    <div
+                      className={styles.uploadProgressBar}
+                      style={{ width: `${formUploadProgress}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
               <div className={styles.modalFooter}>
                 <button
                   type="button"
@@ -811,14 +944,29 @@ export default function MateriPage() {
       {/* ════════════════════════════════════════════════════════════════ */}
       {previewMateri && (
         <div className={styles.modalBackdrop} onClick={() => setPreviewMateri(null)}>
-          <div className={`${styles.modalContent} ${styles.modalPreviewContent}`} onClick={(e) => e.stopPropagation()}>
+          <div
+            className={`${styles.modalContent} ${styles.modalPreviewContent}`}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className={styles.modalHeader}>
               <div className={styles.modalTitleGroup}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                  }}
+                >
                   <span className={`${styles.courseBadge} ${styles.badgePurple}`}>
                     {previewMateri.matakuliah?.kode || 'MK'}
                   </span>
-                  <span style={{ fontSize: '0.84rem', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
+                  <span
+                    style={{
+                      fontSize: '0.84rem',
+                      color: 'var(--color-text-secondary)',
+                      fontWeight: 600,
+                    }}
+                  >
                     {previewMateri.matakuliah?.nama || 'Mata Kuliah'}
                   </span>
                 </div>
@@ -826,8 +974,8 @@ export default function MateriPage() {
                   {previewMateri.judul}
                 </h3>
               </div>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className={styles.closeModalBtn}
                 onClick={() => setPreviewMateri(null)}
               >
@@ -836,21 +984,37 @@ export default function MateriPage() {
             </div>
 
             <div className={styles.modalBody}>
+              {previewMateri.thumbnailUrl && (
+                <img
+                  className={styles.previewThumbnail}
+                  src={previewMateri.thumbnailUrl}
+                  alt={`Thumbnail ${previewMateri.judul}`}
+                />
+              )}
               <div className={styles.previewCourseHeader}>
-                <span style={{ fontSize: '0.84rem', color: 'var(--color-text-secondary)' }}>
-                  Pertemuan ke-{previewMateri.urutan} • {new Date(previewMateri.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                <span
+                  style={{
+                    fontSize: '0.84rem',
+                    color: 'var(--color-text-secondary)',
+                  }}
+                >
+                  Pertemuan ke-{previewMateri.urutan} •{' '}
+                  {new Date(previewMateri.createdAt).toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                  })}
                 </span>
 
                 {previewMateri.pdfUrl && (
                   <a
                     href={previewMateri.pdfUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    download
                     className={styles.btnPrimary}
                     style={{ padding: '0.5rem 1rem', fontSize: '0.82rem' }}
                   >
                     <FileDown size={16} />
-                    <span>Buka / Unduh Berkas PDF</span>
+                    <span>Unduh PDF</span>
                   </a>
                 )}
               </div>
@@ -859,9 +1023,18 @@ export default function MateriPage() {
               {previewMateri.konten && (
                 <div className={styles.previewBodySection}>
                   <label className={styles.formLabel}>Isi Materi & Catatan Dosen:</label>
-                  <div className={styles.previewTextContent}>
-                    {previewMateri.konten}
-                  </div>
+                  <div className={styles.previewTextContent}>{previewMateri.konten}</div>
+                </div>
+              )}
+
+              {previewMateri.pdfUrl && (
+                <div className={styles.previewBodySection}>
+                  <label className={styles.formLabel}>Pratinjau PDF:</label>
+                  <iframe
+                    className={styles.previewPdfViewer}
+                    src={`${previewMateri.pdfUrl}#view=FitH`}
+                    title={`PDF ${previewMateri.judul}`}
+                  />
                 </div>
               )}
 
@@ -892,9 +1065,9 @@ export default function MateriPage() {
                 type="button"
                 className={styles.btnSecondary}
                 onClick={() => {
-                  const target = previewMateri;
-                  setPreviewMateri(null);
-                  openEditModal(target);
+                  const target = previewMateri
+                  setPreviewMateri(null)
+                  openEditModal(target)
                 }}
               >
                 <Edit3 size={15} style={{ marginRight: '0.35rem', verticalAlign: 'middle' }} />
@@ -914,21 +1087,37 @@ export default function MateriPage() {
 
       {/* ─── Lightbox Photo Zoom ─────────────────────────────────────── */}
       {activeGalleryZoom && (
-        <div 
-          className={styles.modalBackdrop} 
+        <div
+          className={styles.modalBackdrop}
           style={{ zIndex: 1100, background: 'rgba(0,0,0,0.85)' }}
           onClick={() => setActiveGalleryZoom(null)}
         >
-          <div style={{ position: 'relative', maxWidth: '90vw', maxHeight: '90vh' }}>
-            <img 
-              src={activeGalleryZoom} 
-              alt="Zoomed" 
-              style={{ maxWidth: '100%', maxHeight: '85vh', borderRadius: '16px', objectFit: 'contain' }}
+          <div
+            style={{
+              position: 'relative',
+              maxWidth: '90vw',
+              maxHeight: '90vh',
+            }}
+          >
+            <img
+              src={activeGalleryZoom}
+              alt="Zoomed"
+              style={{
+                maxWidth: '100%',
+                maxHeight: '85vh',
+                borderRadius: '16px',
+                objectFit: 'contain',
+              }}
             />
             <button
               type="button"
               className={styles.closeModalBtn}
-              style={{ position: 'absolute', top: '-15px', right: '-15px', background: 'white' }}
+              style={{
+                position: 'absolute',
+                top: '-15px',
+                right: '-15px',
+                background: 'white',
+              }}
               onClick={() => setActiveGalleryZoom(null)}
             >
               <X size={18} />
@@ -942,14 +1131,20 @@ export default function MateriPage() {
       {/* ════════════════════════════════════════════════════════════════ */}
       {deletingMateri && (
         <div className={styles.modalBackdrop} onClick={() => setDeletingMateri(null)}>
-          <div className={styles.modalContent} style={{ maxWidth: '480px' }} onClick={(e) => e.stopPropagation()}>
+          <div
+            className={styles.modalContent}
+            style={{ maxWidth: '480px' }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className={styles.modalHeader}>
               <div className={styles.modalTitleGroup}>
-                <h3 className={styles.modalTitle} style={{ color: '#dc2626' }}>Hapus Materi</h3>
+                <h3 className={styles.modalTitle} style={{ color: '#dc2626' }}>
+                  Hapus Materi
+                </h3>
                 <span className={styles.modalSubtitle}>Tindakan ini tidak dapat dibatalkan.</span>
               </div>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className={styles.closeModalBtn}
                 onClick={() => setDeletingMateri(null)}
               >
@@ -958,11 +1153,24 @@ export default function MateriPage() {
             </div>
 
             <div className={styles.modalBody}>
-              <p style={{ fontSize: '0.92rem', color: 'var(--color-text-primary)', lineHeight: 1.5 }}>
+              <p
+                style={{
+                  fontSize: '0.92rem',
+                  color: 'var(--color-text-primary)',
+                  lineHeight: 1.5,
+                }}
+              >
                 Apakah Anda yakin ingin menghapus materi <strong>"{deletingMateri.judul}"</strong>?
               </p>
-              <p style={{ fontSize: '0.82rem', color: 'var(--color-text-secondary)', marginTop: '0.35rem' }}>
-                Seluruh berkas PDF dan foto pendukung yang terhubung ke materi ini akan ikut dihapus secara permanen.
+              <p
+                style={{
+                  fontSize: '0.82rem',
+                  color: 'var(--color-text-secondary)',
+                  marginTop: '0.35rem',
+                }}
+              >
+                Seluruh berkas PDF dan foto pendukung yang terhubung ke materi ini akan ikut dihapus
+                secara permanen.
               </p>
             </div>
 
@@ -988,5 +1196,5 @@ export default function MateriPage() {
         </div>
       )}
     </div>
-  );
+  )
 }

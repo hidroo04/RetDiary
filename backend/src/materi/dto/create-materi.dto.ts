@@ -20,7 +20,9 @@ export class CreateMateriDto {
   @IsNotEmpty({ message: 'Judul materi tidak boleh kosong' })
   judul: string;
 
-  @ApiPropertyOptional({ example: 'Materi ini membahas dasar-dasar budidaya...' })
+  @ApiPropertyOptional({
+    example: 'Materi ini membahas dasar-dasar budidaya...',
+  })
   @IsOptional()
   @IsString()
   konten?: string;

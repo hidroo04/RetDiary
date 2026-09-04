@@ -1,25 +1,25 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { authApi } from '@/api/auth.api';
-import { useAuthStore } from '@/stores/auth.store';
-import { Mail, Lock, BookOpen, Calendar, PieChart, ShieldCheck } from 'lucide-react';
-import illustrationImg from '../../assets/kelinci.png';
-import styles from './Login.module.css';
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { authApi } from '@/api/auth.api'
+import { useAuthStore } from '@/stores/auth.store'
+import { Mail, Lock, BookOpen, Calendar, PieChart, ShieldCheck } from 'lucide-react'
+import illustrationImg from '../../assets/kelinci.png'
+import styles from './Login.module.css'
 
 const loginSchema = z.object({
   email: z.string().min(1, 'Email wajib diisi').email('Format email tidak valid'),
   password: z.string().min(6, 'Kata sandi minimal 6 karakter'),
-});
+})
 
-type LoginForm = z.infer<typeof loginSchema>;
+type LoginForm = z.infer<typeof loginSchema>
 
 export default function Login() {
-  const navigate = useNavigate();
-  const setAuth = useAuthStore((state) => state.setAuth);
-  const [errorMsg, setErrorMsg] = useState('');
+  const navigate = useNavigate()
+  const setAuth = useAuthStore((state) => state.setAuth)
+  const [errorMsg, setErrorMsg] = useState('')
 
   const {
     register,
@@ -27,24 +27,23 @@ export default function Login() {
     formState: { errors, isSubmitting },
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
-  });
+  })
 
   const onSubmit = async (data: LoginForm) => {
-    setErrorMsg('');
+    setErrorMsg('')
     try {
-      const res = await authApi.login(data);
-      setAuth(res);
-      navigate('/');
+      const res = await authApi.login(data)
+      setAuth(res)
+      navigate('/')
     } catch (error: any) {
-      const msg = error.response?.data?.message || 'Terjadi kesalahan saat login';
-      setErrorMsg(Array.isArray(msg) ? msg[0] : msg);
+      const msg = error.response?.data?.message || 'Terjadi kesalahan saat login'
+      setErrorMsg(Array.isArray(msg) ? msg[0] : msg)
     }
-  };
+  }
 
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-
         {/* Kolom Kiri */}
         <div className={styles.leftSide}>
           <div className={styles.leftHeader}>
@@ -52,7 +51,10 @@ export default function Login() {
             <span className={styles.leftSubtitle}>RETDIARY • POLINELA</span>
           </div>
           <h1 className={styles.leftTitle}>
-            Ruang kerja<br />pengajar,<br />
+            Ruang kerja
+            <br />
+            pengajar,
+            <br />
             <span className={styles.highlightText}>lebih teratur.</span>
           </h1>
           <p className={styles.leftDesc}>
@@ -106,7 +108,9 @@ export default function Login() {
             <div className={styles.formGroup}>
               <div className={styles.labelRow}>
                 <label className={styles.formLabel}>Kata sandi</label>
-                <a href="#" className={styles.forgotPassword}>Lupa kata sandi?</a>
+                <a href="#" className={styles.forgotPassword}>
+                  Lupa kata sandi?
+                </a>
               </div>
               <div className={styles.inputWrapper}>
                 <Lock size={18} className={styles.inputIcon} />
@@ -117,7 +121,9 @@ export default function Login() {
                   {...register('password')}
                 />
               </div>
-              {errors.password && <span className={styles.errorMessage}>{errors.password.message}</span>}
+              {errors.password && (
+                <span className={styles.errorMessage}>{errors.password.message}</span>
+              )}
             </div>
 
             <div className={styles.sessionInfo}>
@@ -134,8 +140,7 @@ export default function Login() {
             Butuh bantuan? Hubungi <a href="#">administrator program studi</a>
           </div>
         </div>
-
       </div>
     </div>
-  );
+  )
 }

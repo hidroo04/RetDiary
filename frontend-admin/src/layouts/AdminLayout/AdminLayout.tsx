@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react';
-import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
   BookOpen,
-  Bell,
   CalendarDays,
   ChevronDown,
   FileText,
@@ -13,11 +12,10 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Plus,
-  Search,
   X,
-} from 'lucide-react';
-import { useAuthStore } from '@/stores/auth.store';
-import styles from './AdminLayout.module.css';
+} from 'lucide-react'
+import { useAuthStore } from '@/stores/auth.store'
+import styles from './AdminLayout.module.css'
 
 const PAGE_NAMES: Record<string, string> = {
   '/': 'Ringkasan',
@@ -25,39 +23,39 @@ const PAGE_NAMES: Record<string, string> = {
   '/materi': 'Semua materi',
   '/materi/tambah': 'Tambah materi',
   '/jadwal': 'Jadwal',
-};
+}
 
 const getInitials = (name?: string) => {
-  if (!name) return 'DS';
+  if (!name) return 'DS'
   return name
     .split(' ')
     .filter(Boolean)
     .slice(0, 2)
     .map((part) => part[0])
     .join('')
-    .toUpperCase();
-};
+    .toUpperCase()
+}
 
 export const AdminLayout = () => {
-  const { dosen, logout } = useAuthStore();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [materiOpen, setMateriOpen] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { dosen, logout } = useAuthStore()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [materiOpen, setMateriOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
-    if (location.pathname.startsWith('/materi')) setMateriOpen(true);
-    setMobileMenuOpen(false);
-  }, [location.pathname]);
+    if (location.pathname.startsWith('/materi')) setMateriOpen(true)
+    setMobileMenuOpen(false)
+  }, [location.pathname])
 
   const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+    logout()
+    navigate('/login')
+  }
 
-  const isMateriActive = location.pathname.startsWith('/materi');
-  const currentPageName = PAGE_NAMES[location.pathname] ?? 'RetDiary';
+  const isMateriActive = location.pathname.startsWith('/materi')
+  const currentPageName = PAGE_NAMES[location.pathname] ?? 'RetDiary'
 
   return (
     <div className={styles.layoutWrapper}>
@@ -86,7 +84,9 @@ export const AdminLayout = () => {
         />
       )}
 
-      <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''} ${mobileMenuOpen ? styles.mobileSidebarOpen : ''}`}>
+      <aside
+        className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''} ${mobileMenuOpen ? styles.mobileSidebarOpen : ''}`}
+      >
         <div className={styles.sidebarInner}>
           <div className={styles.sidebarTop}>
             <div className={styles.brandRow}>
@@ -108,13 +108,20 @@ export const AdminLayout = () => {
 
             <span className={styles.navSectionLabel}>Ruang kerja</span>
             <nav className={styles.nav} aria-label="Navigasi utama">
-              <NavLink to="/" end className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}>
+              <NavLink
+                to="/"
+                end
+                className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}
+              >
                 <LayoutDashboard size={19} />
                 <span>Ringkasan</span>
                 <i />
               </NavLink>
 
-              <NavLink to="/matakuliah" className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}>
+              <NavLink
+                to="/matakuliah"
+                className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}
+              >
                 <BookOpen size={19} />
                 <span>Mata kuliah</span>
                 <i />
@@ -125,25 +132,44 @@ export const AdminLayout = () => {
                   type="button"
                   className={`${styles.navItem} ${isMateriActive ? styles.groupTriggerActive : ''}`}
                   onClick={() => {
-                    if (isCollapsed) setIsCollapsed(false);
-                    setMateriOpen((open) => !open);
+                    if (isCollapsed) setIsCollapsed(false)
+                    setMateriOpen((open) => !open)
                   }}
                 >
                   <FolderOpen size={19} />
                   <span>Materi</span>
-                  <ChevronDown className={`${styles.chevron} ${materiOpen ? styles.chevronOpen : ''}`} size={16} />
+                  <ChevronDown
+                    className={`${styles.chevron} ${materiOpen ? styles.chevronOpen : ''}`}
+                    size={16}
+                  />
                 </button>
-                <div className={`${styles.subNav} ${materiOpen && !isCollapsed ? styles.subNavOpen : ''}`}>
-                  <NavLink to="/materi" end className={({ isActive }) => `${styles.subNavItem} ${isActive ? styles.subNavActive : ''}`}>
+                <div
+                  className={`${styles.subNav} ${materiOpen && !isCollapsed ? styles.subNavOpen : ''}`}
+                >
+                  <NavLink
+                    to="/materi"
+                    end
+                    className={({ isActive }) =>
+                      `${styles.subNavItem} ${isActive ? styles.subNavActive : ''}`
+                    }
+                  >
                     <FileText size={15} /> Semua materi
                   </NavLink>
-                  <NavLink to="/materi/tambah" className={({ isActive }) => `${styles.subNavItem} ${isActive ? styles.subNavActive : ''}`}>
+                  <NavLink
+                    to="/materi/tambah"
+                    className={({ isActive }) =>
+                      `${styles.subNavItem} ${isActive ? styles.subNavActive : ''}`
+                    }
+                  >
                     <Plus size={15} /> Tambah materi
                   </NavLink>
                 </div>
               </div>
 
-              <NavLink to="/jadwal" className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}>
+              <NavLink
+                to="/jadwal"
+                className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}
+              >
                 <CalendarDays size={19} />
                 <span>Jadwal</span>
                 <i />
@@ -166,7 +192,12 @@ export const AdminLayout = () => {
                 <strong>{dosen?.nama || 'Dosen'}</strong>
                 <span>{dosen?.email || 'Pengajar Polinela'}</span>
               </div>
-              <button className={styles.logoutButton} onClick={handleLogout} aria-label="Keluar" title="Keluar">
+              <button
+                className={styles.logoutButton}
+                onClick={handleLogout}
+                aria-label="Keluar"
+                title="Keluar"
+              >
                 <LogOut size={17} />
               </button>
             </div>
@@ -188,22 +219,9 @@ export const AdminLayout = () => {
                 <PanelLeftOpen size={20} />
               </button>
             )}
-            <label className={styles.globalSearch}>
-              <Search size={19} />
-              <input type="search" placeholder="Cari mata kuliah atau materi..." aria-label="Cari" />
-            </label>
-          </div>
-          <div className={styles.topBarActions}>
-            <button type="button" className={styles.notificationButton} aria-label="Notifikasi">
-              <Bell size={20} />
-            </button>
-            <div className={styles.topProfile}>
-              <span className={styles.topProfileAvatar}>{getInitials(dosen?.nama)}</span>
-              <div>
-                <strong>{dosen?.nama || 'Dosen'}</strong>
-                <span>Pengajar</span>
-              </div>
-              <ChevronDown size={16} />
+            <div className={styles.welcomeGreeting}>
+              <span className={styles.greetingAccent} aria-hidden="true" />
+              <h1>Selamat datang kembali</h1>
             </div>
           </div>
         </div>
@@ -215,5 +233,5 @@ export const AdminLayout = () => {
         </div>
       </main>
     </div>
-  );
-};
+  )
+}

@@ -52,10 +52,10 @@ async function bootstrap() {
 
   const logger = app.get(Logger);
   logger.log(`🚀 Server berjalan di: http://localhost:${port}`, 'Bootstrap');
+  logger.log(`📚 Swagger docs: http://localhost:${port}/api/docs`, 'Bootstrap');
   logger.log(
-    `📚 Swagger docs: http://localhost:${port}/api/docs`,
+    `🌐 CORS diizinkan dari: ${allowedOrigins.join(', ')}`,
     'Bootstrap',
   );
-  logger.log(`🌐 CORS diizinkan dari: ${allowedOrigins.join(', ')}`, 'Bootstrap');
 }
 bootstrap();

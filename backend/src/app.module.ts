@@ -57,6 +57,23 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'),
       serveRoot: '/uploads',
+      serveStaticOptions: {
+        acceptRanges: true,
+        cacheControl: true,
+        etag: true,
+        maxAge: '1h',
+        setHeaders: (response, filePath) => {
+          if (filePath.toLowerCase().endsWith('.pdf')) {
+            response.setHeader('Content-Type', 'application/pdf');
+            response.setHeader('Content-Disposition', 'inline');
+            response.setHeader('Accept-Ranges', 'bytes');
+            response.setHeader(
+              'Access-Control-Expose-Headers',
+              'Accept-Ranges, Content-Length, Content-Range',
+            );
+          }
+        },
+      },
     }),
 
     // Modul database (global)

@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
@@ -58,7 +55,12 @@ export class AuthService {
         where: { matakuliah: { dosenId } },
         orderBy: { createdAt: 'desc' },
         take: 5,
-        select: { id: true, judul: true, createdAt: true, matakuliah: { select: { nama: true } } },
+        select: {
+          id: true,
+          judul: true,
+          createdAt: true,
+          matakuliah: { select: { nama: true } },
+        },
       }),
     ]);
 

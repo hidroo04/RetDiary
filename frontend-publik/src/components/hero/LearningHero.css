@@ -1,17 +1,146 @@
-.learning-hero { position: relative; min-height: clamp(470px, 36vw, 650px); display: flex; align-items: flex-end; overflow: hidden; isolation: isolate; color: #fff; background: #073b31; }
-.learning-hero-image { position: absolute; z-index: -3; inset: -20px; background: var(--learning-hero-image) center / cover no-repeat; transform: scale(1.04); }
-.learning-hero-shade { position: absolute; z-index: -2; inset: 0; background: linear-gradient(90deg, rgba(3,35,27,.96), rgba(4,45,34,.78) 43%, rgba(4,32,25,.3)), linear-gradient(0deg, rgba(3,25,19,.72), transparent 65%); }
-.learning-hero.fallback-hero { background: radial-gradient(circle at 78% 18%, rgba(185,232,111,.18), transparent 24%), linear-gradient(135deg, #073b31, #0b5744 58%, #0a4337); }
-.learning-hero.fallback-hero .learning-hero-image { background-image: linear-gradient(115deg, transparent 46%, rgba(255,255,255,.035) 46% 47%, transparent 47%); background-size: 34px 34px; }
-.learning-hero .particle-field { z-index: -1; opacity: .42; }
-.learning-hero-content { position: relative; z-index: 2; width: min(1460px, calc(100% - 64px)); padding: 115px 20px 78px; }
-.learning-hero-content h1 { max-width: 1050px; margin: 12px 0 18px; color: white; font-size: clamp(52px, 6vw, 92px); line-height: .98; letter-spacing: -5px; }
-.learning-hero-content > p { max-width: 720px; margin: 0; color: rgba(242,249,245,.88); font-size: clamp(16px, 1.6vw, 20px); line-height: 1.65; }
-.learning-hero-meta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
-.learning-hero-meta > span { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border: 1px solid rgba(255,255,255,.2); border-radius: 999px; background: rgba(5,44,34,.42); backdrop-filter: blur(8px); font-size: 12px; font-weight: 700; }
-.hero-back-button { display: inline-flex; align-items: center; gap: 9px; margin-bottom: 38px; padding: 11px 17px; border: 1px solid rgba(255,255,255,.3); border-radius: 999px; background: rgba(255,255,255,.13); color: #fff; font-size: 12px; font-weight: 800; backdrop-filter: blur(10px); transition: .2s ease; }
-.hero-back-button:hover { background: white; color: #164b3d; transform: translateY(-2px); }
-.learning-orbit { position: absolute; z-index: -1; border: 1px solid rgba(185,232,111,.19); border-radius: 50%; pointer-events: none; }
-.learning-orbit.orbit-a { width: 520px; height: 520px; right: 5%; top: -25%; box-shadow: 0 0 0 60px rgba(255,255,255,.025); }
-.learning-orbit.orbit-b { width: 240px; height: 240px; right: 22%; bottom: -25%; }
-@media (max-width: 640px) { .learning-hero { min-height: 500px; }.learning-hero-content { width: min(100% - 32px, 1160px); padding: 100px 0 58px; }.learning-hero-content h1 { font-size: 48px; letter-spacing: -3px; }.hero-back-button { margin-bottom: 30px; } }
+.learning-hero {
+  position: relative;
+  min-height: clamp(360px, 27vw, 440px);
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  isolation: isolate;
+  color: #fff;
+  background: #073b31;
+}
+.learning-hero-image {
+  position: absolute;
+  z-index: -3;
+  inset: -20px;
+  background: var(--learning-hero-image) center / cover no-repeat;
+  transform: scale(1.04);
+}
+.learning-hero-shade {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(3, 35, 27, 0.96), rgba(4, 45, 34, 0.78) 43%, rgba(4, 32, 25, 0.3)),
+    linear-gradient(0deg, rgba(3, 25, 19, 0.72), transparent 65%);
+}
+.learning-hero.fallback-hero {
+  background:
+    radial-gradient(circle at 78% 18%, rgba(185, 232, 111, 0.18), transparent 24%),
+    linear-gradient(135deg, #073b31, #0b5744 58%, #0a4337);
+}
+.learning-hero.fallback-hero .learning-hero-image {
+  background-image: linear-gradient(
+    115deg,
+    transparent 46%,
+    rgba(255, 255, 255, 0.035) 46% 47%,
+    transparent 47%
+  );
+  background-size: 34px 34px;
+}
+.learning-hero .particle-field {
+  z-index: -1;
+  opacity: 0.42;
+}
+.learning-hero-content {
+  position: relative;
+  z-index: 2;
+  width: min(1460px, calc(100% - 64px));
+  margin-inline: auto;
+  padding: 88px 20px 42px;
+  text-align: left;
+}
+.learning-hero-content h1 {
+  max-width: 1050px;
+  margin: 10px 0 14px;
+  color: white;
+  font-size: clamp(44px, 4.8vw, 74px);
+  line-height: 1;
+  letter-spacing: -4px;
+}
+.learning-hero-content > p {
+  max-width: 720px;
+  margin: 0;
+  color: rgba(242, 249, 245, 0.88);
+  font-size: clamp(16px, 1.6vw, 20px);
+  line-height: 1.65;
+}
+.learning-hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-top: 20px;
+}
+.learning-hero-meta > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  background: rgba(5, 44, 34, 0.42);
+  backdrop-filter: blur(8px);
+  font-size: 12px;
+  font-weight: 700;
+}
+.hero-back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 22px;
+  padding: 10px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.13);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  backdrop-filter: blur(10px);
+  transition: 0.2s ease;
+}
+.hero-back-button:hover {
+  background: white;
+  color: #164b3d;
+  transform: translateY(-2px);
+}
+.learning-orbit {
+  position: absolute;
+  z-index: -1;
+  border: 1px solid rgba(185, 232, 111, 0.19);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.learning-orbit.orbit-a {
+  width: 520px;
+  height: 520px;
+  right: 5%;
+  top: -25%;
+  box-shadow: 0 0 0 60px rgba(255, 255, 255, 0.025);
+}
+.learning-orbit.orbit-b {
+  width: 240px;
+  height: 240px;
+  right: 22%;
+  bottom: -25%;
+}
+@media (max-width: 640px) {
+  .learning-hero {
+    height: auto;
+    min-height: 390px;
+  }
+  .learning-hero-content {
+    width: min(100% - 32px, 1460px);
+    padding: 78px 18px 38px;
+  }
+  .learning-hero-content h1 {
+    font-size: clamp(38px, 11vw, 48px);
+    letter-spacing: -2.8px;
+  }
+  .learning-hero-content > p {
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  .hero-back-button {
+    margin-bottom: 20px;
+  }
+}

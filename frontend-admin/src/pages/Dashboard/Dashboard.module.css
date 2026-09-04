@@ -137,7 +137,9 @@
   padding: 8px 0;
 }
 
-.activityItem:last-child { border-bottom: 0; }
+.activityItem:last-child {
+  border-bottom: 0;
+}
 
 .activityIcon {
   align-items: center;
@@ -151,7 +153,10 @@
   width: 38px;
 }
 
-.activityInfo { flex: 1; min-width: 0; }
+.activityInfo {
+  flex: 1;
+  min-width: 0;
+}
 
 .activityTitle,
 .scheduleTitle {
@@ -173,8 +178,14 @@
   white-space: nowrap;
 }
 
-.activityActions { align-items: center; display: flex; gap: 8px; }
-.actionIcon { color: #a29ba7; }
+.activityActions {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+.actionIcon {
+  color: #a29ba7;
+}
 
 .badgeTerbit,
 .statusBadgeOngoing,
@@ -187,12 +198,32 @@
   white-space: nowrap;
 }
 
-.badgeTerbit { background: #e9f9ef; color: #35895e; }
-.viewAllBtn { background: transparent; border: 0; color: #7655d3; cursor: pointer; font-size: 0.72rem; font-weight: 700; margin-top: 14px; padding: 4px 0; text-align: left; }
+.badgeTerbit {
+  background: #e9f9ef;
+  color: #35895e;
+}
+.viewAllBtn {
+  background: transparent;
+  border: 0;
+  color: #7655d3;
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-top: 14px;
+  padding: 4px 0;
+  text-align: left;
+}
 
-.rightGrid { gap: 18px; }
-.scheduleHeader { align-items: flex-start; justify-content: space-between; }
-.scheduleHeader .sectionHeading { margin-bottom: 0; }
+.rightGrid {
+  gap: 18px;
+}
+.scheduleHeader {
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.scheduleHeader .sectionHeading {
+  margin-bottom: 0;
+}
 
 .liveBadge {
   align-items: center;
@@ -206,33 +237,154 @@
   padding: 6px 9px;
 }
 
-.liveDot { background: #8e6ee1; border-radius: 50%; height: 6px; width: 6px; }
-.scheduleSummary { border-bottom: 1px solid #f1eef4; color: #8a838f; font-size: 0.7rem; margin: 13px 0 5px; padding-bottom: 12px; }
+.liveDot {
+  background: #8e6ee1;
+  border-radius: 50%;
+  height: 6px;
+  width: 6px;
+}
+.scheduleSummary {
+  border-bottom: 1px solid #f1eef4;
+  color: #8a838f;
+  font-size: 0.7rem;
+  margin: 13px 0 5px;
+  padding-bottom: 12px;
+}
 
-.scheduleItem { gap: 10px; min-height: 54px; padding: 7px 0; }
-.scheduleTimeCol { flex: 0 0 48px; text-align: left; }
-.scheduleTimeStart { color: #342d3b; font-size: 0.76rem; font-weight: 750; }
-.scheduleTimeEnd { color: #968f9a; font-size: 0.63rem; margin-top: 2px; }
-.scheduleDivider { background: #d8cefa; border-radius: 99px; height: 32px; width: 3px; }
-.scheduleDividerOngoing { background: #7958d5; }
-.scheduleDividerUpcoming { background: #ad98ea; }
-.scheduleInfo { flex: 1; min-width: 0; }
-.statusBadgeOngoing { background: #eee9fb; color: #7454cf; }
-.statusBadgeUpcoming { background: #f6f3fc; color: #817a88; }
-.statusBadgePassed { background: #f1eff3; color: #918a96; }
-.scheduleItemPassed { opacity: 0.62; }
-.emptySchedule { align-items: center; color: #938d98; display: flex; flex-direction: column; font-size: 0.74rem; gap: 8px; justify-content: center; padding: 30px 12px; text-align: center; }
-.recurringNote { color: #aaa3ae; font-size: 0.61rem; margin-top: 12px; }
+.scheduleItem {
+  gap: 10px;
+  min-height: 54px;
+  padding: 7px 0;
+}
+.scheduleTimeCol {
+  flex: 0 0 48px;
+  text-align: left;
+}
+.scheduleTimeStart {
+  color: #342d3b;
+  font-size: 0.76rem;
+  font-weight: 750;
+}
+.scheduleTimeEnd {
+  color: #968f9a;
+  font-size: 0.63rem;
+  margin-top: 2px;
+}
+.scheduleDivider {
+  background: #d8cefa;
+  border-radius: 99px;
+  height: 32px;
+  width: 3px;
+}
+.scheduleDividerOngoing {
+  background: #7958d5;
+}
+.scheduleDividerUpcoming {
+  background: #ad98ea;
+}
+.scheduleInfo {
+  flex: 1;
+  min-width: 0;
+}
+.statusBadgeOngoing {
+  background: #eee9fb;
+  color: #7454cf;
+}
+.statusBadgeUpcoming {
+  background: #f6f3fc;
+  color: #817a88;
+}
+.statusBadgePassed {
+  background: #f1eff3;
+  color: #918a96;
+}
+.scheduleItemPassed {
+  opacity: 0.62;
+}
+.emptySchedule {
+  align-items: center;
+  color: #938d98;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.74rem;
+  gap: 8px;
+  justify-content: center;
+  padding: 30px 12px;
+  text-align: center;
+}
+.recurringNote {
+  color: #aaa3ae;
+  font-size: 0.61rem;
+  margin-top: 12px;
+}
 
-.progressCard { background: linear-gradient(135deg, #f0eafe, #fbfaff); }
-.progressHeader { margin-bottom: 16px; }
-.progressTitle { color: #30283a; font-size: 1.1rem; font-weight: 750; margin-top: 5px; }
-.progressRow { justify-content: space-between; margin-bottom: 8px; }
-.progressLabel { color: #847d8a; font-size: 0.72rem; }
-.progressPercent { color: #7554d1; font-size: 1.18rem; font-weight: 800; }
-.progressBarBg { background: rgba(255, 255, 255, 0.85); border-radius: 99px; height: 7px; overflow: hidden; }
-.progressBarFill { background: linear-gradient(90deg, #a98ee9, #7354d0); border-radius: inherit; height: 100%; }
+.progressCard {
+  background: linear-gradient(135deg, #f0eafe, #fbfaff);
+}
+.progressHeader {
+  margin-bottom: 16px;
+}
+.progressTitle {
+  color: #30283a;
+  font-size: 1.1rem;
+  font-weight: 750;
+  margin-top: 5px;
+}
+.progressRow {
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.progressLabel {
+  color: #847d8a;
+  font-size: 0.72rem;
+}
+.progressPercent {
+  color: #7554d1;
+  font-size: 1.18rem;
+  font-weight: 800;
+}
+.progressBarBg {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 99px;
+  height: 7px;
+  overflow: hidden;
+}
+.progressBarFill {
+  background: linear-gradient(90deg, #a98ee9, #7354d0);
+  border-radius: inherit;
+  height: 100%;
+}
 
-@media (max-width: 1080px) { .statsRow { grid-template-columns: repeat(2, minmax(0, 1fr)); } .mainGrid { grid-template-columns: 1fr; } }
-@media (max-width: 768px) { .dashboard { gap: 20px; } .statsRow { grid-template-columns: 1fr; gap: 10px; } .sectionCard, .progressCard { padding: 17px; } .notifBtn { display: flex; } }
-@media (max-width: 440px) { .scheduleHeader { flex-direction: column; gap: 8px; } .activityActions .actionIcon { display: none; } }
+@media (max-width: 1080px) {
+  .statsRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .mainGrid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 768px) {
+  .dashboard {
+    gap: 20px;
+  }
+  .statsRow {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .sectionCard,
+  .progressCard {
+    padding: 17px;
+  }
+  .notifBtn {
+    display: flex;
+  }
+}
+@media (max-width: 440px) {
+  .scheduleHeader {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .activityActions .actionIcon {
+    display: none;
+  }
+}

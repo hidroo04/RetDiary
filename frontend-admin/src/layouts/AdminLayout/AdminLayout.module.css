@@ -14,7 +14,10 @@
   height: calc(100dvh - 36px);
   margin: 18px;
   overflow: hidden;
-  transition: flex-basis 240ms ease, width 240ms ease, transform 240ms ease;
+  transition:
+    flex-basis 240ms ease,
+    width 240ms ease,
+    transform 240ms ease;
   width: 242px;
   z-index: 40;
 }
@@ -34,9 +37,6 @@
 .userCard,
 .desktopTopBar,
 .topBarStart,
-.topBarActions,
-.globalSearch,
-.topProfile,
 .mobileBrand {
   align-items: center;
   display: flex;
@@ -69,7 +69,6 @@
 .brandCopy,
 .userDetails,
 .sessionNote > div,
-.topProfile > div,
 .mobileBrand > div {
   display: flex;
   flex-direction: column;
@@ -90,7 +89,6 @@
 
 .collapseButton,
 .mobileMenuToggle,
-.notificationButton,
 .logoutButton {
   align-items: center;
   background: transparent;
@@ -140,7 +138,10 @@
   min-height: 44px;
   padding: 0 13px;
   text-decoration: none;
-  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
   width: 100%;
 }
 
@@ -191,7 +192,10 @@
   opacity: 0;
   overflow: hidden;
   padding-left: 34px;
-  transition: max-height 220ms ease, opacity 180ms ease, padding-bottom 220ms ease;
+  transition:
+    max-height 220ms ease,
+    opacity 180ms ease,
+    padding-bottom 220ms ease;
 }
 
 .subNavOpen {
@@ -256,8 +260,7 @@
   padding: 8px;
 }
 
-.userAvatar,
-.topProfileAvatar {
+.userAvatar {
   align-items: center;
   background: #a78be9;
   border-radius: 50%;
@@ -344,9 +347,9 @@
 }
 
 .desktopTopBar {
+  background: linear-gradient(90deg, rgba(250, 248, 255, 0.78) 0%, #fff 54%);
   border-bottom: 1px solid #f0eef5;
   flex: 0 0 82px;
-  justify-content: space-between;
   padding: 0 clamp(22px, 3vw, 44px);
 }
 
@@ -366,7 +369,11 @@
   flex: 0 0 40px;
   height: 40px;
   justify-content: center;
-  transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
   width: 40px;
 }
 
@@ -382,66 +389,42 @@
   outline-offset: 2px;
 }
 
-.globalSearch {
-  background: #f5f3f8;
-  border-radius: 10px;
-  color: #817b8b;
-  gap: 8px;
-  height: 40px;
-  padding: 0 13px;
-  width: min(300px, 38vw);
+.welcomeGreeting {
+  align-items: center;
+  display: flex;
+  gap: 12px;
 }
 
-.globalSearch:focus-within {
-  box-shadow: 0 0 0 3px rgba(125, 93, 221, 0.13);
+.greetingAccent {
+  background: linear-gradient(180deg, #a98ee9 0%, #7252d2 100%);
+  border-radius: 999px;
+  box-shadow: 0 5px 14px rgba(114, 82, 210, 0.25);
+  height: 30px;
+  position: relative;
+  width: 4px;
 }
 
-.globalSearch input {
-  background: transparent;
-  border: 0;
-  color: #332b43;
-  font-size: 0.78rem;
-  min-width: 0;
-  outline: 0;
-  width: 100%;
+.greetingAccent::after {
+  background: #d9cbfb;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  content: '';
+  height: 7px;
+  left: 50%;
+  position: absolute;
+  top: 4px;
+  transform: translateX(-50%);
+  width: 7px;
 }
 
-.globalSearch input::placeholder {
-  color: #9a94a2;
-}
-
-.topBarActions {
-  gap: 22px;
-}
-
-.notificationButton {
-  color: #4a4254;
-  height: 38px;
-  width: 38px;
-}
-
-.notificationButton:hover {
-  color: var(--color-primary-lilac);
-}
-
-.topProfile {
-  color: #514959;
-  gap: 9px;
-}
-
-.topProfileAvatar {
-  background: #e0d5fb;
-  color: #664abf;
-}
-
-.topProfile strong {
-  color: #342d3c;
-  font-size: 0.73rem;
-}
-
-.topProfile span {
-  color: #928b98;
-  font-size: 0.61rem;
+.welcomeGreeting h1 {
+  color: #352d3e;
+  font-family: var(--heading);
+  font-size: clamp(1rem, 1.45vw, 1.2rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  margin: 0;
 }
 
 .mainScrollable {
@@ -457,8 +440,14 @@
 }
 
 @keyframes pageEnter {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .mobileTopBar,
@@ -467,13 +456,24 @@
 }
 
 @media (max-width: 900px) {
-  .sidebar { flex-basis: 212px; width: 212px; }
-  .collapsed { flex-basis: 72px; width: 72px; }
-  .mainScrollable { padding-left: 24px; padding-right: 24px; }
+  .sidebar {
+    flex-basis: 212px;
+    width: 212px;
+  }
+  .collapsed {
+    flex-basis: 72px;
+    width: 72px;
+  }
+  .mainScrollable {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
 }
 
 @media (max-width: 768px) {
-  .layoutWrapper { flex-direction: column; }
+  .layoutWrapper {
+    flex-direction: column;
+  }
   .mobileTopBar {
     background: #fff;
     border-bottom: 1px solid #f0eef5;
@@ -483,12 +483,37 @@
     padding: 0 16px;
     z-index: 30;
   }
-  .mobileBrand { gap: 9px; }
-  .mobileBrand .brandMark { color: #4a347f; flex-basis: 34px; font-size: 1.2rem; height: 34px; width: 34px; }
-  .mobileBrand strong { color: #352d3e; font-size: 0.82rem; }
-  .mobileBrand span { color: #8e8794; font-size: 0.6rem; }
-  .mobileMenuToggle { color: #4a347f; height: 40px; width: 40px; }
-  .mobileBackdrop { background: rgba(34, 25, 54, 0.36); border: 0; display: block; inset: 0; position: fixed; z-index: 45; }
+  .mobileBrand {
+    gap: 9px;
+  }
+  .mobileBrand .brandMark {
+    color: #4a347f;
+    flex-basis: 34px;
+    font-size: 1.2rem;
+    height: 34px;
+    width: 34px;
+  }
+  .mobileBrand strong {
+    color: #352d3e;
+    font-size: 0.82rem;
+  }
+  .mobileBrand span {
+    color: #8e8794;
+    font-size: 0.6rem;
+  }
+  .mobileMenuToggle {
+    color: #4a347f;
+    height: 40px;
+    width: 40px;
+  }
+  .mobileBackdrop {
+    background: rgba(34, 25, 54, 0.36);
+    border: 0;
+    display: block;
+    inset: 0;
+    position: fixed;
+    z-index: 45;
+  }
   .sidebar,
   .sidebar.collapsed {
     bottom: 10px;
@@ -502,7 +527,9 @@
     z-index: 50;
   }
   .mobileSidebarOpen,
-  .sidebar.collapsed.mobileSidebarOpen { transform: translateX(0); }
+  .sidebar.collapsed.mobileSidebarOpen {
+    transform: translateX(0);
+  }
   .collapsed .brandCopy,
   .collapsed .navSectionLabel,
   .collapsed .navItem > span,
@@ -510,17 +537,32 @@
   .collapsed .subNav,
   .collapsed .sessionNote,
   .collapsed .userDetails,
-  .collapsed .logoutButton { display: flex; }
-  .collapsed .navSectionLabel { display: block; }
+  .collapsed .logoutButton {
+    display: flex;
+  }
+  .collapsed .navSectionLabel {
+    display: block;
+  }
   .collapsed .navItem,
-  .collapsed .userCard { justify-content: flex-start; padding-left: 13px; padding-right: 13px; }
-  .desktopTopBar { display: none; }
-  .mainScrollable { padding: 22px 16px 28px; }
+  .collapsed .userCard {
+    justify-content: flex-start;
+    padding-left: 13px;
+    padding-right: 13px;
+  }
+  .desktopTopBar {
+    display: none;
+  }
+  .mainScrollable {
+    padding: 22px 16px 28px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .sidebar,
   .pageTransition,
   .chevron,
-  .subNav { animation: none; transition: none; }
+  .subNav {
+    animation: none;
+    transition: none;
+  }
 }

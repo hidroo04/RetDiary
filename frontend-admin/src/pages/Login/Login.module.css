@@ -5,7 +5,7 @@
   align-items: center;
   justify-content: center;
   background-color: var(--color-bg-primary);
-  background-image: 
+  background-image:
     radial-gradient(circle at 12% 18%, rgba(117, 99, 217, 0.11) 0%, transparent 38%),
     radial-gradient(circle at 88% 82%, rgba(85, 167, 123, 0.08) 0%, transparent 42%);
   font-family: var(--sans);
@@ -21,7 +21,9 @@
   -webkit-backdrop-filter: blur(18px) saturate(125%);
   border: 1px solid rgba(255, 255, 255, 0.82);
   border-radius: 22px;
-  box-shadow: 0 20px 60px rgba(40, 35, 51, 0.1), inset 0 1px rgba(255, 255, 255, 0.72);
+  box-shadow:
+    0 20px 60px rgba(40, 35, 51, 0.1),
+    inset 0 1px rgba(255, 255, 255, 0.72);
   overflow: hidden;
   position: relative;
 }
@@ -33,7 +35,7 @@
   background-image: none;
   border-right: 1px solid rgba(67, 60, 72, 0.08);
   padding: 3rem;
-  color: #2E1E4D;
+  color: #2e1e4d;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -66,7 +68,7 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   font-weight: 800;
-  color: #8B5CF6;
+  color: #8b5cf6;
 }
 
 .leftTitle {
@@ -75,11 +77,11 @@
   font-weight: 800;
   margin-bottom: 0.75rem;
   margin-top: 0;
-  color: #2E1E4D;
+  color: #2e1e4d;
 }
 
 .highlightText {
-  color: #8B5CF6;
+  color: #8b5cf6;
 }
 
 .leftDesc {
@@ -88,7 +90,7 @@
   line-height: 1.5;
   margin-bottom: 2rem;
   font-weight: 600;
-  color: #5D5276;
+  color: #5d5276;
 }
 
 .tags {
@@ -108,14 +110,20 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #2E1E4D;
+  color: #2e1e4d;
   box-shadow: 0 2px 8px rgba(139, 92, 246, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.9);
 }
 
-.tagIconMateri { color: #8B5CF6; }
-.tagIconJadwal { color: #A78BFA; }
-.tagIconLaporan { color: #C4B5FD; }
+.tagIconMateri {
+  color: #8b5cf6;
+}
+.tagIconJadwal {
+  color: #a78bfa;
+}
+.tagIconLaporan {
+  color: #c4b5fd;
+}
 
 .illustrationWrapper {
   flex: 1;
@@ -152,8 +160,8 @@
 .logoRight {
   width: 34px;
   height: 34px;
-  background: #EDE9FE;
-  color: #8B5CF6;
+  background: #ede9fe;
+  color: #8b5cf6;
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -164,7 +172,7 @@
 
 .headerRight span {
   font-weight: 800;
-  color: #2E1E4D;
+  color: #2e1e4d;
   font-size: 1rem;
 }
 
@@ -172,7 +180,7 @@
   font-size: 0.72rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #8B5CF6;
+  color: #8b5cf6;
   font-weight: 800;
   margin-bottom: 0.5rem;
 }
@@ -180,13 +188,13 @@
 .mainTitle {
   font-size: 1.85rem;
   font-weight: 800;
-  color: #2E1E4D;
+  color: #2e1e4d;
   margin: 0 0 0.5rem 0;
 }
 
 .subTitle {
   font-size: 0.9rem;
-  color: #6D6882;
+  color: #6d6882;
   margin-bottom: 2rem;
   font-weight: 600;
 }
@@ -199,7 +207,7 @@
   display: block;
   font-size: 0.85rem;
   font-weight: 700;
-  color: #2E1E4D;
+  color: #2e1e4d;
   margin-bottom: 0.5rem;
 }
 
@@ -211,7 +219,7 @@
 
 .forgotPassword {
   font-size: 0.8rem;
-  color: #8B5CF6;
+  color: #8b5cf6;
   text-decoration: none;
   font-weight: 700;
 }
@@ -229,31 +237,31 @@
 .inputIcon {
   position: absolute;
   left: 1.2rem;
-  color: #8B5CF6;
+  color: #8b5cf6;
 }
 
 .inputField {
   width: 100%;
   padding: 1rem 1rem 1rem 3.2rem;
   background: #ffffff;
-  border: 1px solid #E2DCF5;
+  border: 1px solid #e2dcf5;
   border-radius: 16px;
   font-size: 0.95rem;
   font-weight: 500;
   outline: none;
   transition: all 0.2s ease;
   box-sizing: border-box;
-  color: #2E1E4D;
+  color: #2e1e4d;
   box-shadow: 0 2px 6px rgba(139, 92, 246, 0.04);
 }
 
 .inputField::placeholder {
-  color: #9CA3AF;
+  color: #9ca3af;
   font-weight: 500;
 }
 
 .inputField:focus {
-  border-color: #8B5CF6;
+  border-color: #8b5cf6;
   box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
 }
 
@@ -314,12 +322,12 @@
   margin-top: 2rem;
   text-align: center;
   font-size: 0.75rem;
-  color: #9CA3AF;
+  color: #9ca3af;
   font-weight: 600;
 }
 
 .footer a {
-  color: #8B5CF6;
+  color: #8b5cf6;
   font-weight: 700;
   text-decoration: none;
 }
@@ -329,7 +337,7 @@
 }
 
 .errorMessage {
-  color: #EF4444;
+  color: #ef4444;
   font-size: 0.8rem;
   margin-top: 0.4rem;
   display: block;
@@ -337,13 +345,13 @@
 }
 
 .alertError {
-  background-color: #FEF2F2;
-  color: #DC2626;
+  background-color: #fef2f2;
+  color: #dc2626;
   padding: 0.75rem;
   border-radius: 12px;
   margin-bottom: 1.5rem;
   font-size: 0.85rem;
-  border: 1px solid #FECACA;
+  border: 1px solid #fecaca;
   font-weight: 600;
 }
 
@@ -364,7 +372,8 @@
     font-size: 1.6rem;
     margin-bottom: 0.5rem;
   }
-  .leftHeader, .headerRight {
+  .leftHeader,
+  .headerRight {
     margin-bottom: 1.25rem;
   }
   .illustrationWrapper {

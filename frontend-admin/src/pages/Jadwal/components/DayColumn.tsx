@@ -1,16 +1,16 @@
-import { Plus } from 'lucide-react';
-import type { HariKuliah, Jadwal } from '@/types/domain.types';
-import { ScheduleCard } from './ScheduleCard';
-import styles from '../Jadwal.module.css';
+import { Plus } from 'lucide-react'
+import type { HariKuliah, Jadwal } from '@/types/domain.types'
+import { ScheduleCard } from './ScheduleCard'
+import styles from '../Jadwal.module.css'
 
 interface DayColumnProps {
-  day: HariKuliah;
-  index: number;
-  schedules: Jadwal[];
-  hasCourses: boolean;
-  onCreate: (day: HariKuliah) => void;
-  onEdit: (schedule: Jadwal) => void;
-  onDelete: (schedule: Jadwal) => void;
+  day: HariKuliah
+  index: number
+  schedules: Jadwal[]
+  hasCourses: boolean
+  onCreate: (day: HariKuliah) => void
+  onEdit: (schedule: Jadwal) => void
+  onDelete: (schedule: Jadwal) => void
 }
 
 export const DayColumn = ({
@@ -34,12 +34,7 @@ export const DayColumn = ({
     <div className={styles.dayContent}>
       {schedules.length ? (
         schedules.map((schedule) => (
-          <ScheduleCard
-            key={schedule.id}
-            schedule={schedule}
-            onEdit={onEdit}
-            onDelete={onDelete}
-          />
+          <ScheduleCard key={schedule.id} schedule={schedule} onEdit={onEdit} onDelete={onDelete} />
         ))
       ) : (
         <button
@@ -54,4 +49,4 @@ export const DayColumn = ({
       )}
     </div>
   </article>
-);
+)

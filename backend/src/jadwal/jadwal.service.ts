@@ -34,9 +34,11 @@ export class JadwalService {
       where: { id: dto.matakuliahId, dosenId },
     });
     if (!mk) {
-      throw new ForbiddenException('Matakuliah tidak ditemukan atau bukan milik Anda.');
+      throw new ForbiddenException(
+        'Matakuliah tidak ditemukan atau bukan milik Anda.',
+      );
     }
-    
+
     const result = await this.prisma.jadwal.create({ data: dto });
 
     // Invalidate public caches
@@ -55,8 +57,11 @@ export class JadwalService {
     if (jadwal.matakuliah.dosenId !== dosenId) {
       throw new ForbiddenException('Anda tidak memiliki akses ke jadwal ini.');
     }
-    
-    const result = await this.prisma.jadwal.update({ where: { id }, data: dto });
+
+    const result = await this.prisma.jadwal.update({
+      where: { id },
+      data: dto,
+    });
 
     // Invalidate public caches
     await this.cacheManager.del('public_jadwal');
@@ -74,7 +79,7 @@ export class JadwalService {
     if (jadwal.matakuliah.dosenId !== dosenId) {
       throw new ForbiddenException('Anda tidak memiliki akses ke jadwal ini.');
     }
-    
+
     const result = await this.prisma.jadwal.delete({ where: { id } });
 
     // Invalidate public caches

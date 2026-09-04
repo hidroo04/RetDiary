@@ -1,12 +1,12 @@
-import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
-import type { Dosen, LoginResponse } from '@/types/auth.types';
+import { create } from 'zustand'
+import { createJSONStorage, persist } from 'zustand/middleware'
+import type { Dosen, LoginResponse } from '@/types/auth.types'
 
 interface AuthState {
-  token: string | null;
-  dosen: Dosen | null;
-  setAuth: (data: LoginResponse) => void;
-  logout: () => void;
+  token: string | null
+  dosen: Dosen | null
+  setAuth: (data: LoginResponse) => void
+  logout: () => void
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -26,6 +26,6 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'retdiary-auth-session',
       storage: createJSONStorage(() => sessionStorage),
-    }
-  )
-);
+    },
+  ),
+)

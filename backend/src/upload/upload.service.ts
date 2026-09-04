@@ -16,14 +16,24 @@ export class UploadService {
   private readonly uploadDir = path.join(process.cwd(), 'uploads');
   private readonly maxPdfSize = 10 * 1024 * 1024; // 10MB
   private readonly maxImgSize = 5 * 1024 * 1024; // 5MB
-  private readonly allowedImgMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
+  private readonly allowedImgMimeTypes = [
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+  ];
 
   constructor() {
     // Pastikan folder uploads ada
     if (!fs.existsSync(this.uploadDir)) {
       fs.mkdirSync(this.uploadDir, { recursive: true });
     }
-    ['pdf', 'foto/thumbnail', 'foto/medium', 'foto/original'].forEach((sub) => {
+    [
+      'pdf',
+      'thumbnail',
+      'foto/thumbnail',
+      'foto/medium',
+      'foto/original',
+    ].forEach((sub) => {
       const dir = path.join(this.uploadDir, sub);
       if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     });
@@ -40,12 +50,14 @@ export class UploadService {
 
     const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.pdf`;
     const filepath = path.join(this.uploadDir, 'pdf', filename);
-    fs.writeFileSync(filepath, file.buffer);
+    await fs.promises.writeFile(filepath, file.buffer);
     return `/uploads/pdf/${filename}`;
   }
 
   // FR-21, NFR-1.4: Upload, resize, dan konversi foto ke WebP
-  async saveFoto(file: UploadedFile): Promise<{ thumbnail: string; medium: string; original: string }> {
+  async saveFoto(
+    file: UploadedFile,
+  ): Promise<{ thumbnail: string; medium: string; original: string }> {
     if (!this.allowedImgMimeTypes.includes(file.mimetype)) {
       throw new BadRequestException('Format foto harus JPG, PNG, atau WebP.');
     }
@@ -62,6 +74,25 @@ export class UploadService {
     ]);
 
     return { thumbnail, medium, original };
+  }
+
+  async saveThumbnail(file: UploadedFile): Promise<string> {
+    if (!this.allowedImgMimeTypes.includes(file.mimetype)) {
+      throw new BadRequestException(
+        'Format thumbnail harus JPG, PNG, atau WebP.',
+      );
+    }
+    if (file.size > this.maxImgSize) {
+      throw new BadRequestException('Ukuran thumbnail maksimum 5MB.');
+    }
+
+    const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
+    const filepath = path.join(this.uploadDir, 'thumbnail', filename);
+    await (sharp as unknown as (buf: Buffer) => sharp.Sharp)(file.buffer)
+      .resize(800, 450, { fit: 'cover', position: 'centre' })
+      .webp({ quality: 82 })
+      .toFile(filepath);
+    return `/uploads/thumbnail/${filename}`;
   }
 
   private async resizeAndSave(

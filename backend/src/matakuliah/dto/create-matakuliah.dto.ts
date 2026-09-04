@@ -14,7 +14,9 @@ export class CreateMatakuliahDto {
   @MaxLength(20)
   kode: string;
 
-  @ApiPropertyOptional({ example: 'Mempelajari teknik budidaya tanaman perkebunan unggulan.' })
+  @ApiPropertyOptional({
+    example: 'Mempelajari teknik budidaya tanaman perkebunan unggulan.',
+  })
   @IsOptional()
   @IsString()
   deskripsi?: string;

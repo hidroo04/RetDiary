@@ -18,22 +18,36 @@ export class MateriService {
 
   // FR-17: Daftar materi per matakuliah
   async findAllByMatakuliah(matakuliahId: string, dosenId: string) {
-    const mk = await this.prisma.matakuliah.findFirst({ where: { id: matakuliahId, dosenId } });
-    if (!mk) throw new ForbiddenException('Matakuliah tidak ditemukan atau bukan milik Anda.');
+    const mk = await this.prisma.matakuliah.findFirst({
+      where: { id: matakuliahId, dosenId },
+    });
+    if (!mk)
+      throw new ForbiddenException(
+        'Matakuliah tidak ditemukan atau bukan milik Anda.',
+      );
 
     return this.prisma.materi.findMany({
       where: { matakuliahId },
       orderBy: { urutan: 'asc' },
       select: {
-        id: true, judul: true, urutan: true, createdAt: true,
-        konten: true, pdfUrl: true,
+        id: true,
+        judul: true,
+        urutan: true,
+        createdAt: true,
+        konten: true,
+        pdfUrl: true,
+        thumbnailUrl: true,
         fotoMateri: { select: { id: true, urlFoto: true, urutan: true } },
       },
     });
   }
 
   // Daftar seluruh materi milik dosen yang login (dengan relasi matakuliah dan foto)
-  async findAllByDosen(dosenId: string, matakuliahId?: string, search?: string) {
+  async findAllByDosen(
+    dosenId: string,
+    matakuliahId?: string,
+    search?: string,
+  ) {
     return this.prisma.materi.findMany({
       where: {
         matakuliah: {
@@ -45,8 +59,16 @@ export class MateriService {
               OR: [
                 { judul: { contains: search, mode: 'insensitive' } },
                 { konten: { contains: search, mode: 'insensitive' } },
-                { matakuliah: { nama: { contains: search, mode: 'insensitive' } } },
-                { matakuliah: { kode: { contains: search, mode: 'insensitive' } } },
+                {
+                  matakuliah: {
+                    nama: { contains: search, mode: 'insensitive' },
+                  },
+                },
+                {
+                  matakuliah: {
+                    kode: { contains: search, mode: 'insensitive' },
+                  },
+                },
               ],
             }
           : {}),
@@ -91,20 +113,34 @@ export class MateriService {
   }
 
   // FR-19, FR-22, FR-23: Tambah materi (dengan atau tanpa PDF)
-  async create(dosenId: string, dto: CreateMateriDto, pdfFile?: UploadedFile) {
+  async create(
+    dosenId: string,
+    dto: CreateMateriDto,
+    pdfFile?: UploadedFile,
+    thumbnailFile?: UploadedFile,
+  ) {
     const mk = await this.prisma.matakuliah.findFirst({
       where: { id: dto.matakuliahId, dosenId },
     });
-    if (!mk) throw new ForbiddenException('Matakuliah tidak ditemukan atau bukan milik Anda.');
+    if (!mk)
+      throw new ForbiddenException(
+        'Matakuliah tidak ditemukan atau bukan milik Anda.',
+      );
 
     // FR-22: validasi minimal ada satu jenis konten
     if (!dto.konten && !pdfFile) {
-      throw new BadRequestException('Materi harus memiliki konten tulisan atau berkas PDF.');
+      throw new BadRequestException(
+        'Materi harus memiliki konten tulisan atau berkas PDF.',
+      );
     }
 
     let pdfUrl: string | undefined;
+    let thumbnailUrl: string | undefined;
     if (pdfFile) {
       pdfUrl = await this.uploadService.savePdf(pdfFile);
+    }
+    if (thumbnailFile) {
+      thumbnailUrl = await this.uploadService.saveThumbnail(thumbnailFile);
     }
 
     return this.prisma.materi.create({
@@ -113,13 +149,20 @@ export class MateriService {
         judul: dto.judul,
         konten: dto.konten,
         pdfUrl,
+        thumbnailUrl,
         urutan: dto.urutan,
       },
     });
   }
 
   // FR-19, FR-20: Ubah materi
-  async update(id: string, dosenId: string, dto: UpdateMateriDto, pdfFile?: UploadedFile) {
+  async update(
+    id: string,
+    dosenId: string,
+    dto: UpdateMateriDto,
+    pdfFile?: UploadedFile,
+    thumbnailFile?: UploadedFile,
+  ) {
     const materi = await this.prisma.materi.findFirst({
       where: { id },
       include: { matakuliah: true },
@@ -130,14 +173,20 @@ export class MateriService {
     }
 
     let pdfUrl = materi.pdfUrl;
+    let thumbnailUrl = materi.thumbnailUrl;
     if (pdfFile) {
       if (materi.pdfUrl) this.uploadService.deletePdf(materi.pdfUrl);
       pdfUrl = await this.uploadService.savePdf(pdfFile);
     }
+    if (thumbnailFile) {
+      if (materi.thumbnailUrl)
+        this.uploadService.deleteFoto(materi.thumbnailUrl);
+      thumbnailUrl = await this.uploadService.saveThumbnail(thumbnailFile);
+    }
 
     return this.prisma.materi.update({
       where: { id },
-      data: { ...dto, pdfUrl },
+      data: { ...dto, pdfUrl, thumbnailUrl },
     });
   }
 
@@ -154,6 +203,7 @@ export class MateriService {
 
     // Hapus file fisik sebelum hapus record DB
     if (materi.pdfUrl) this.uploadService.deletePdf(materi.pdfUrl);
+    if (materi.thumbnailUrl) this.uploadService.deleteFoto(materi.thumbnailUrl);
     materi.fotoMateri.forEach((f) => this.uploadService.deleteFoto(f.urlFoto));
 
     return this.prisma.materi.delete({ where: { id } });
@@ -175,7 +225,9 @@ export class MateriService {
     );
 
     // Simpan URL thumbnail ke DB (medium/original bisa digunakan via konvensi URL)
-    const lastUrutan = await this.prisma.fotoMateri.count({ where: { materiId } });
+    const lastUrutan = await this.prisma.fotoMateri.count({
+      where: { materiId },
+    });
 
     return this.prisma.$transaction(
       savedFotos.map((foto, idx) =>

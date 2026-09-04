@@ -37,23 +37,23 @@ const GuestRoute = ({ children }: { children: React.ReactNode }) => {
 function App() {
   return (
     <Routes>
-      <Route 
-        path="/login" 
+      <Route
+        path="/login"
         element={
           <GuestRoute>
             <Login />
           </GuestRoute>
-        } 
+        }
       />
-      
+
       {/* Protected Routes (Butuh Login) */}
-      <Route 
-        path="/" 
+      <Route
+        path="/"
         element={
           <ProtectedRoute>
             <AdminLayout />
           </ProtectedRoute>
-        } 
+        }
       >
         <Route index element={<Dashboard />} />
         <Route path="matakuliah" element={<Matakuliah />} />

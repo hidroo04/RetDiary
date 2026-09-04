@@ -92,7 +92,9 @@
   font-size: 0.92rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  box-shadow:
+    0 6px 20px rgba(139, 92, 246, 0.35),
+    inset 0 1px 1px rgba(255, 255, 255, 0.4);
   transition: all 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
   white-space: nowrap;
 }
@@ -109,7 +111,7 @@
 /* ─── Hero / Perpustakaan Pembelajaran Card ─────────────────────── */
 .heroCard {
   background: rgba(255, 255, 255, 0.8);
-  background-image: 
+  background-image:
     radial-gradient(circle at 90% 10%, rgba(196, 181, 253, 0.35) 0%, transparent 50%),
     radial-gradient(circle at 10% 90%, rgba(237, 233, 254, 0.45) 0%, transparent 50%);
   backdrop-filter: blur(24px) saturate(180%);
@@ -117,7 +119,9 @@
   border: 1px solid rgba(255, 255, 255, 0.95);
   border-radius: clamp(20px, 2.5vw, 28px);
   padding: clamp(1.5rem, 2.5vw, 2.25rem);
-  box-shadow: 0 16px 40px -8px rgba(139, 92, 246, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.95);
+  box-shadow:
+    0 16px 40px -8px rgba(139, 92, 246, 0.12),
+    inset 0 1px 1px rgba(255, 255, 255, 0.95);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -180,7 +184,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .statBox:hover {
@@ -309,7 +315,9 @@
 
 .searchInput:focus {
   border-color: var(--color-primary-lilac);
-  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15), 0 6px 20px rgba(139, 92, 246, 0.08);
+  box-shadow:
+    0 0 0 4px rgba(139, 92, 246, 0.15),
+    0 6px 20px rgba(139, 92, 246, 0.08);
   background: #ffffff;
 }
 
@@ -472,6 +480,15 @@
   gap: 0.85rem;
   min-width: 0;
   flex: 1;
+}
+
+.materialThumbnail {
+  width: 72px;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid rgba(226, 220, 245, 0.85);
 }
 
 .iconBox {
@@ -806,6 +823,36 @@
   background: #f8f7fd;
 }
 
+.uploadProgress {
+  padding: 0.85rem 1.75rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.uploadProgressHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.uploadProgressTrack {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e9e5f5;
+}
+
+.uploadProgressBar {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #8b5cf6, #6d55b8);
+  transition: width 0.2s ease;
+}
+
 /* Form Styles */
 .formGroup {
   display: flex;
@@ -898,6 +945,58 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.thumbnailEditor {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr) auto;
+  gap: 0.85rem;
+  align-items: center;
+  padding: 0.75rem;
+  background: rgba(236, 253, 245, 0.55);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 12px;
+}
+
+.thumbnailEditor img {
+  width: 140px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.thumbnailEditor div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.thumbnailEditor strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.thumbnailEditor span {
+  color: var(--color-text-secondary);
+  font-size: 0.76rem;
+}
+
+.previewThumbnail {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+.previewPdfViewer {
+  width: 100%;
+  height: min(70vh, 720px);
+  min-height: 480px;
+  border: 1px solid rgba(226, 220, 245, 0.9);
+  border-radius: 12px;
+  background: #fff;
 }
 
 /* Photo Thumbnail Grid */
@@ -1049,8 +1148,12 @@
 
 /* ─── Animations ────────────────────────────────────────────────── */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes scaleUp {
