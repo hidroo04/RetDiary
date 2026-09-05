@@ -47,6 +47,18 @@ export class PublicController {
     return this.publicService.getMateriById(id);
   }
 
+  @Get('materi/:id/pages')
+  @ApiOperation({ summary: 'Halaman PDF sebagai gambar dengan pagination' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  getMateriPages(
+    @Param('id') id: string,
+    @Query('page') page = '1',
+    @Query('limit') limit = '6',
+  ) {
+    return this.publicService.getMateriPages(id, +page, +limit);
+  }
+
   // FR-28, FR-29: Rekomendasi materi berikutnya
   @Get('materi/:id/rekomendasi')
   @ApiOperation({ summary: 'Rekomendasi materi berikutnya (FR-28, FR-29)' })

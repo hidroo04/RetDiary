@@ -160,6 +160,12 @@ export class MateriController {
     return this.materiService.remove(id, user.id);
   }
 
+  @Post('materi/:id/pdf/retry')
+  @ApiOperation({ summary: 'Ulangi konversi PDF yang gagal' })
+  retryPdf(@Param('id') id: string, @CurrentUser() user: DosenPayload) {
+    return this.materiService.retryPdf(id, user.id);
+  }
+
   // FR-21: Upload foto pendukung (maks 10 foto sekaligus)
   @Post('materi/:id/foto')
   @ApiOperation({ summary: 'Upload foto pendukung materi (FR-21)' })

@@ -14,6 +14,10 @@ import { MateriModule } from './materi/materi.module';
 import { JadwalModule } from './jadwal/jadwal.module';
 import { PublicModule } from './public/public.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { BullModule } from '@nestjs/bullmq';
+import { ConfigService } from '@nestjs/config';
+import { redisConnectionFromUrl } from './pdf/redis-connection';
+import type { Response } from 'express';
 
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
@@ -32,6 +36,22 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
           .valid('development', 'production', 'test')
           .default('development'),
         CORS_ORIGIN: Joi.string().default('http://localhost:5173'),
+        REDIS_URL: Joi.string().uri().default('redis://localhost:6379'),
+        PDFTOPPM_PATH: Joi.string().default('pdftoppm'),
+        PDFINFO_PATH: Joi.string().default('pdfinfo'),
+        PDF_RENDER_DPI: Joi.number().integer().min(72).max(300).default(150),
+        PDF_RENDER_QUALITY: Joi.number().integer().min(40).max(100).default(80),
+        PDF_MAX_PAGES: Joi.number().integer().min(1).max(1000).default(300),
+        PDF_COMMAND_TIMEOUT_MS: Joi.number().integer().min(1000).default(60000),
+      }),
+    }),
+
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        connection: redisConnectionFromUrl(
+          config.get<string>('REDIS_URL', 'redis://localhost:6379'),
+        ),
       }),
     }),
 
@@ -62,7 +82,13 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
         cacheControl: true,
         etag: true,
         maxAge: '1h',
-        setHeaders: (response, filePath) => {
+        setHeaders: (response: Response, filePath) => {
+          if (filePath.toLowerCase().includes('pdf-pages')) {
+            response.setHeader(
+              'Cache-Control',
+              'public, max-age=31536000, immutable',
+            );
+          }
           if (filePath.toLowerCase().endsWith('.pdf')) {
             response.setHeader('Content-Type', 'application/pdf');
             response.setHeader('Content-Disposition', 'inline');

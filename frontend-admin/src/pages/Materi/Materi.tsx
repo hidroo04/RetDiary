@@ -280,6 +280,21 @@ export default function MateriPage() {
     },
   })
 
+  const retryPdfMutation = useAsyncMutation({
+    mutationFn: (materiId: string) => materiApi.retryPdf(materiId),
+    onSuccess: () => refetchMateri(),
+  })
+
+  const getPublicationStatus = (materi: Materi) => {
+    if (!materi.pdfUrl || materi.pdfStatus === 'READY' || !materi.pdfStatus) {
+      return { label: 'Terbit', className: styles.statusTerbit }
+    }
+    if (materi.pdfStatus === 'FAILED') {
+      return { label: 'PDF gagal', className: styles.statusGagal }
+    }
+    return { label: 'Memproses PDF', className: styles.statusProses }
+  }
+
   // ─── Format Subtitle Helper ────────────────────────────────────────────
   const getMaterialTypeSubtitle = (m: Materi) => {
     const hasPdf = !!m.pdfUrl
@@ -534,7 +549,11 @@ export default function MateriPage() {
 
                     {/* Right: Status & Actions */}
                     <div className={styles.materialRight}>
-                      <span className={`${styles.statusBadge} ${styles.statusTerbit}`}>Terbit</span>
+                      <span
+                        className={`${styles.statusBadge} ${getPublicationStatus(materi).className}`}
+                      >
+                        {getPublicationStatus(materi).label}
+                      </span>
 
                       <div className={styles.actionRow}>
                         {/* Preview */}
@@ -577,6 +596,18 @@ export default function MateriPage() {
                             title="Lihat Isi Teks"
                           >
                             <FileText size={17} />
+                          </button>
+                        )}
+
+                        {materi.pdfStatus === 'FAILED' && (
+                          <button
+                            type="button"
+                            className={styles.actionIconBtn}
+                            onClick={() => retryPdfMutation.mutate(materi.id)}
+                            disabled={retryPdfMutation.isPending}
+                            title="Coba proses PDF lagi"
+                          >
+                            <Upload size={17} />
                           </button>
                         )}
 

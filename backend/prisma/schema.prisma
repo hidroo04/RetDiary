@@ -47,16 +47,45 @@ model Materi {
   judul         String       @db.VarChar(300)
   konten        String?      @db.Text
   pdfUrl        String?      @map("pdf_url") @db.VarChar(500)
+  pdfStatus     PdfStatus    @default(NONE) @map("pdf_status")
+  pdfTotalPages Int?         @map("pdf_total_pages")
+  pdfError      String?      @map("pdf_error") @db.Text
+  pdfVersion    String?      @map("pdf_version") @db.Uuid
   thumbnailUrl  String?      @map("thumbnail_url") @db.VarChar(500)
   urutan        Int
   createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz
   updatedAt     DateTime     @updatedAt @map("updated_at") @db.Timestamptz
   matakuliah    Matakuliah   @relation(fields: [matakuliahId], references: [id], onDelete: Cascade)
   fotoMateri    FotoMateri[]
+  pages         MateriPage[]
 
   @@index([matakuliahId])
   @@index([matakuliahId, urutan])
   @@map("materi")
+}
+
+enum PdfStatus {
+  NONE
+  PENDING
+  PROCESSING
+  READY
+  FAILED
+}
+
+model MateriPage {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  materiId   String   @map("materi_id") @db.Uuid
+  pageNumber Int      @map("page_number")
+  imageUrl   String   @map("image_url") @db.VarChar(500)
+  width      Int
+  height     Int
+  byteSize   Int?     @map("byte_size")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+  materi     Materi   @relation(fields: [materiId], references: [id], onDelete: Cascade)
+
+  @@unique([materiId, pageNumber])
+  @@index([materiId, pageNumber])
+  @@map("materi_pages")
 }
 
 model FotoMateri {

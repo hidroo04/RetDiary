@@ -4,8 +4,8 @@ import { materiPublicApi } from '@/api/materi.api'
 import { LearningHero } from '@/components/hero/LearningHero'
 import { Icon } from '@/components/ui/Icon'
 import { QueryState } from '@/components/ui/AsyncState'
-import { PdfViewer } from '@/components/pdf/PdfViewer'
 import { useAsyncQuery } from '@/hooks/useAsync'
+import { PdfViewer } from '@/components/pdf/PdfViewer'
 import './MaterialDetail.css'
 
 export default function MaterialDetailPage() {
@@ -78,7 +78,13 @@ export default function MaterialDetailPage() {
               </div>
             )}
             {data?.pdfUrl && (
-              <PdfViewer fileUrl={data.pdfUrl} title={data.judul} thumbnailUrl={heroImage} />
+              <PdfViewer
+                materiId={data.id}
+                fileUrl={data.pdfUrl}
+                title={data.judul}
+                status={data.pdfStatus}
+                totalPages={data.pdfTotalPages}
+              />
             )}
             {data && !data.konten && !data.pdfUrl && !data.fotoMateri?.length && (
               <QueryState empty>
@@ -87,39 +93,22 @@ export default function MaterialDetailPage() {
             )}
           </article>
         </div>
-        {data && (
+        {nextMaterial && (
           <nav className="container material-navigation" aria-label="Navigasi materi">
-            {recommendation.isLoading ? (
-              <div className="material-navigation-loading" role="status">
-                Menyiapkan materi selanjutnya...
-              </div>
-            ) : nextMaterial ? (
-              <Link
-                className="material-next-button"
-                aria-label={`Lanjut ke materi ${nextMaterial.judul}`}
-                to={`/materi/${nextMaterial.id}`}
-              >
-                <span className="material-next-copy">
-                  <small>Pertemuan {nextMaterial.urutan}</small>
-                  <strong>{nextMaterial.judul}</strong>
-                </span>
-                <span className="material-next-action">
-                  Lanjut ke materi selanjutnya
-                  <Icon name="arrow" />
-                </span>
-              </Link>
-            ) : (
-              <Link className="material-next-button material-complete-button" to={courseUrl}>
-                <span className="material-next-copy">
-                  <small>Materi terakhir</small>
-                  <strong>Semua materi telah selesai</strong>
-                </span>
-                <span className="material-next-action">
-                  Kembali ke daftar materi
-                  <Icon name="arrow" />
-                </span>
-              </Link>
-            )}
+            <Link
+              className="material-next-button"
+              aria-label={`Lanjut ke materi ${nextMaterial.judul}`}
+              to={`/materi/${nextMaterial.id}`}
+            >
+              <span className="material-next-copy">
+                <small>Pertemuan {nextMaterial.urutan}</small>
+                <strong>{nextMaterial.judul}</strong>
+              </span>
+              <span className="material-next-action">
+                Lanjut ke materi selanjutnya
+                <Icon name="arrow" />
+              </span>
+            </Link>
           </nav>
         )}
       </section>

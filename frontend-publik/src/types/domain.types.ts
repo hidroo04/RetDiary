@@ -25,6 +25,29 @@ export interface FotoMateri {
   urutan: number
 }
 
+export type PdfStatus = 'NONE' | 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED'
+
+export interface MateriPage {
+  id: string
+  pageNumber: number
+  imageUrl: string
+  width: number
+  height: number
+  byteSize?: number
+}
+
+export interface MateriPagesResponse {
+  data: MateriPage[]
+  meta: {
+    status: PdfStatus
+    total: number
+    page: number
+    limit: number
+    totalPages: number
+    hasNextPage: boolean
+  }
+}
+
 // ─── Materi Types ──────────────────────────────────────────────────────────
 
 export interface Materi {
@@ -33,6 +56,8 @@ export interface Materi {
   judul: string
   konten?: string
   pdfUrl?: string
+  pdfStatus?: PdfStatus
+  pdfTotalPages?: number
   thumbnailUrl?: string
   urutan: number
   createdAt: string
@@ -52,6 +77,8 @@ export interface MateriListItem {
   createdAt: string
   konten?: string
   pdfUrl?: string
+  pdfStatus?: PdfStatus
+  pdfTotalPages?: number
   thumbnailUrl?: string
   fotoMateri: FotoMateri[]
   matakuliah?: {

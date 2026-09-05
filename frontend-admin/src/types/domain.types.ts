@@ -25,6 +25,8 @@ export interface FotoMateri {
   urutan: number
 }
 
+export type PdfStatus = 'NONE' | 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED'
+
 // ─── Materi Types ──────────────────────────────────────────────────────────
 
 export interface Materi {
@@ -33,6 +35,9 @@ export interface Materi {
   judul: string
   konten?: string
   pdfUrl?: string
+  pdfStatus?: PdfStatus
+  pdfTotalPages?: number
+  pdfError?: string
   thumbnailUrl?: string
   urutan: number
   createdAt: string
@@ -52,6 +57,8 @@ export interface MateriListItem {
   createdAt: string
   konten?: string
   pdfUrl?: string
+  pdfStatus?: PdfStatus
+  pdfTotalPages?: number
   thumbnailUrl?: string
   fotoMateri: FotoMateri[]
   matakuliah?: {

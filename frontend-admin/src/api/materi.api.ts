@@ -117,6 +117,11 @@ export const materiApi = {
     await apiClient.delete(`/admin/materi/${id}`)
   },
 
+  retryPdf: async (id: string): Promise<Materi> => {
+    const res = await apiClient.post<ApiResponse<Materi>>(`/admin/materi/${id}/pdf/retry`)
+    return unwrapApiData(res.data)
+  },
+
   uploadFoto: async (materiId: string, files: File[]): Promise<FotoMateri[]> => {
     const formData = new FormData()
     files.forEach((file) => formData.append('foto', file))

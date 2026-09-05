@@ -29,6 +29,7 @@ export class UploadService {
     }
     [
       'pdf',
+      'pdf-pages',
       'thumbnail',
       'foto/thumbnail',
       'foto/medium',
@@ -46,6 +47,9 @@ export class UploadService {
     }
     if (file.size > this.maxPdfSize) {
       throw new BadRequestException('Ukuran PDF maksimum 10MB.');
+    }
+    if (file.buffer.subarray(0, 5).toString('ascii') !== '%PDF-') {
+      throw new BadRequestException('Isi berkas bukan dokumen PDF yang valid.');
     }
 
     const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.pdf`;
@@ -124,5 +128,53 @@ export class UploadService {
     if (fs.existsSync(fullPath)) {
       fs.unlinkSync(fullPath);
     }
+  }
+
+  resolveFileUrl(fileUrl: string): string {
+    const relativePath = fileUrl.replace(/^\/?uploads\//, '');
+    const fullPath = path.resolve(this.uploadDir, relativePath);
+    const relativeToUploads = path.relative(this.uploadDir, fullPath);
+    if (
+      relativeToUploads.startsWith('..') ||
+      path.isAbsolute(relativeToUploads)
+    ) {
+      throw new BadRequestException('Lokasi berkas tidak valid.');
+    }
+    return fullPath;
+  }
+
+  async preparePdfPageVersion(
+    materiId: string,
+    version: string,
+  ): Promise<string> {
+    const directory = path.join(this.uploadDir, 'pdf-pages', materiId, version);
+    await fs.promises.rm(directory, { recursive: true, force: true });
+    await fs.promises.mkdir(directory, { recursive: true });
+    return directory;
+  }
+
+  getPdfPageUrl(materiId: string, version: string, pageNumber: number): string {
+    return `/uploads/pdf-pages/${materiId}/${version}/page-${String(pageNumber).padStart(4, '0')}.webp`;
+  }
+
+  async deletePdfPageVersion(materiId: string, version: string): Promise<void> {
+    const directory = path.join(this.uploadDir, 'pdf-pages', materiId, version);
+    await fs.promises.rm(directory, { recursive: true, force: true });
+  }
+
+  async deleteAllPdfPages(materiId: string): Promise<void> {
+    const directory = path.join(this.uploadDir, 'pdf-pages', materiId);
+    await fs.promises.rm(directory, { recursive: true, force: true });
+  }
+
+  async deletePdfPageUrls(imageUrls: string[]): Promise<void> {
+    const directories = new Set(
+      imageUrls.map((imageUrl) => path.dirname(this.resolveFileUrl(imageUrl))),
+    );
+    await Promise.all(
+      [...directories].map((directory) =>
+        fs.promises.rm(directory, { recursive: true, force: true }),
+      ),
+    );
   }
 }

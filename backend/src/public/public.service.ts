@@ -56,6 +56,8 @@ export class PublicService {
           createdAt: true,
           konten: true,
           pdfUrl: true,
+          pdfStatus: true,
+          pdfTotalPages: true,
           thumbnailUrl: true,
           fotoMateri: {
             orderBy: { urutan: 'asc' },
@@ -86,6 +88,8 @@ export class PublicService {
         judul: true,
         konten: true,
         pdfUrl: true,
+        pdfStatus: true,
+        pdfTotalPages: true,
         thumbnailUrl: true,
         urutan: true,
         createdAt: true,
@@ -100,6 +104,57 @@ export class PublicService {
     });
     if (!materi) throw new NotFoundException('Materi tidak ditemukan.');
     return materi;
+  }
+
+  async getMateriPages(id: string, requestedPage = 1, requestedLimit = 6) {
+    const page = Math.max(
+      1,
+      Number.isFinite(requestedPage) ? Math.floor(requestedPage) : 1,
+    );
+    const limit = Math.min(
+      10,
+      Math.max(
+        1,
+        Number.isFinite(requestedLimit) ? Math.floor(requestedLimit) : 6,
+      ),
+    );
+    const materi = await this.prisma.materi.findUnique({
+      where: { id },
+      select: { pdfStatus: true, pdfTotalPages: true },
+    });
+    if (!materi) throw new NotFoundException('Materi tidak ditemukan.');
+
+    const skip = (page - 1) * limit;
+    const total = materi.pdfTotalPages ?? 0;
+    const pages =
+      materi.pdfStatus === 'READY'
+        ? await this.prisma.materiPage.findMany({
+            where: { materiId: id },
+            orderBy: { pageNumber: 'asc' },
+            skip,
+            take: limit,
+            select: {
+              id: true,
+              pageNumber: true,
+              imageUrl: true,
+              width: true,
+              height: true,
+              byteSize: true,
+            },
+          })
+        : [];
+
+    return {
+      data: pages,
+      meta: {
+        status: materi.pdfStatus,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: skip + limit < total,
+      },
+    };
   }
 
   // FR-28: Rekomendasi materi berikutnya berdasarkan urutan

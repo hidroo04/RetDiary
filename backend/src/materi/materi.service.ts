@@ -8,12 +8,15 @@ import { PrismaService } from '../prisma/prisma.service';
 import { UploadService, UploadedFile } from '../upload/upload.service';
 import { CreateMateriDto } from './dto/create-materi.dto';
 import { UpdateMateriDto } from './dto/update-materi.dto';
+import { randomUUID } from 'crypto';
+import { PdfQueueService } from '../pdf/pdf-queue.service';
 
 @Injectable()
 export class MateriService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly uploadService: UploadService,
+    private readonly pdfQueue: PdfQueueService,
   ) {}
 
   // FR-17: Daftar materi per matakuliah
@@ -36,6 +39,8 @@ export class MateriService {
         createdAt: true,
         konten: true,
         pdfUrl: true,
+        pdfStatus: true,
+        pdfTotalPages: true,
         thumbnailUrl: true,
         fotoMateri: { select: { id: true, urlFoto: true, urutan: true } },
       },
@@ -135,24 +140,33 @@ export class MateriService {
     }
 
     let pdfUrl: string | undefined;
+    let pdfVersion: string | undefined;
     let thumbnailUrl: string | undefined;
     if (pdfFile) {
       pdfUrl = await this.uploadService.savePdf(pdfFile);
+      pdfVersion = randomUUID();
     }
     if (thumbnailFile) {
       thumbnailUrl = await this.uploadService.saveThumbnail(thumbnailFile);
     }
 
-    return this.prisma.materi.create({
+    const created = await this.prisma.materi.create({
       data: {
         matakuliahId: dto.matakuliahId,
         judul: dto.judul,
         konten: dto.konten,
         pdfUrl,
+        pdfStatus: pdfFile ? 'PENDING' : 'NONE',
+        pdfVersion,
         thumbnailUrl,
         urutan: dto.urutan,
       },
     });
+
+    if (pdfUrl && pdfVersion) {
+      await this.enqueuePdfOrMarkFailed(created.id, pdfUrl, pdfVersion);
+    }
+    return this.prisma.materi.findUniqueOrThrow({ where: { id: created.id } });
   }
 
   // FR-19, FR-20: Ubah materi
@@ -173,10 +187,11 @@ export class MateriService {
     }
 
     let pdfUrl = materi.pdfUrl;
+    let pdfVersion = materi.pdfVersion;
     let thumbnailUrl = materi.thumbnailUrl;
     if (pdfFile) {
-      if (materi.pdfUrl) this.uploadService.deletePdf(materi.pdfUrl);
       pdfUrl = await this.uploadService.savePdf(pdfFile);
+      pdfVersion = randomUUID();
     }
     if (thumbnailFile) {
       if (materi.thumbnailUrl)
@@ -184,10 +199,35 @@ export class MateriService {
       thumbnailUrl = await this.uploadService.saveThumbnail(thumbnailFile);
     }
 
-    return this.prisma.materi.update({
-      where: { id },
-      data: { ...dto, pdfUrl, thumbnailUrl },
-    });
+    try {
+      await this.prisma.materi.update({
+        where: { id },
+        data: {
+          ...dto,
+          pdfUrl,
+          pdfVersion,
+          thumbnailUrl,
+          ...(pdfFile
+            ? {
+                pdfStatus: 'PENDING' as const,
+                pdfTotalPages: null,
+                pdfError: null,
+              }
+            : {}),
+        },
+      });
+    } catch (error) {
+      if (pdfFile && pdfUrl) this.uploadService.deletePdf(pdfUrl);
+      throw error;
+    }
+
+    if (pdfFile && pdfUrl && pdfVersion) {
+      await this.enqueuePdfOrMarkFailed(id, pdfUrl, pdfVersion);
+      if (materi.pdfUrl && materi.pdfUrl !== pdfUrl) {
+        this.uploadService.deletePdf(materi.pdfUrl);
+      }
+    }
+    return this.prisma.materi.findUniqueOrThrow({ where: { id } });
   }
 
   // FR-18: Hapus materi
@@ -205,8 +245,55 @@ export class MateriService {
     if (materi.pdfUrl) this.uploadService.deletePdf(materi.pdfUrl);
     if (materi.thumbnailUrl) this.uploadService.deleteFoto(materi.thumbnailUrl);
     materi.fotoMateri.forEach((f) => this.uploadService.deleteFoto(f.urlFoto));
+    await this.uploadService.deleteAllPdfPages(id);
 
     return this.prisma.materi.delete({ where: { id } });
+  }
+
+  async retryPdf(id: string, dosenId: string) {
+    const materi = await this.prisma.materi.findFirst({
+      where: { id },
+      include: { matakuliah: true },
+    });
+    if (!materi) throw new NotFoundException('Materi tidak ditemukan.');
+    if (materi.matakuliah.dosenId !== dosenId) {
+      throw new ForbiddenException('Anda tidak memiliki akses ke materi ini.');
+    }
+    if (!materi.pdfUrl) {
+      throw new BadRequestException('Materi tidak memiliki berkas PDF.');
+    }
+
+    const pdfVersion = randomUUID();
+    await this.prisma.materi.update({
+      where: { id },
+      data: {
+        pdfVersion,
+        pdfStatus: 'PENDING',
+        pdfTotalPages: null,
+        pdfError: null,
+      },
+    });
+    await this.enqueuePdfOrMarkFailed(id, materi.pdfUrl, pdfVersion);
+    return this.prisma.materi.findUniqueOrThrow({ where: { id } });
+  }
+
+  private async enqueuePdfOrMarkFailed(
+    materiId: string,
+    pdfUrl: string,
+    version: string,
+  ) {
+    try {
+      await this.pdfQueue.enqueue({ materiId, pdfUrl, version });
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Antrean konversi tidak tersedia.';
+      await this.prisma.materi.updateMany({
+        where: { id: materiId, pdfVersion: version },
+        data: { pdfStatus: 'FAILED', pdfError: message.slice(0, 1_000) },
+      });
+    }
   }
 
   // FR-21: Upload foto pendukung
